@@ -14,9 +14,10 @@ const test2 = async (req, res) => {
 const dataService = async (req, res) => {
     let router = new Router()
     router.routing(req, res)
-    router.route(/\/dataService\/([0-9]+)/).get(getUser)
-    router.route('/space').get(test2)
-    router.next()
+    // ;(await router.route(/\/dataService\/([0-9]+)/).get(getUser)).put(updateUser)
+    // await router.route('/dataService').post(addUser)
+    // ;(await router.route('/space').get(test2))
+    console.log(router.route('/something/:id/something/:ee'))
     // if(req.url.match(/\/dataService\/([0-9]+)/)){
 
     //     if(req.method === 'GET'){
