@@ -1,147 +1,114 @@
 const { isResEnded, reset } = require("../helper/isResponseFinished")
 const { errResponse } = require("../utils/utils")
 
-class Router{
-    constructor(){
-        this.req
-        this.res
-        this.path
-        this.params
+class Router {
+  constructor() {
+    this.req
+    this.res
+    this.path
+    this.paramsPos = []
+    this.params = {}
+    this.isSimple
+  }
+
+  routing(req, res) {
+    this.req = req
+    this.res = res
+    return this
+  }
+
+  route(path) {
+
+    const placeholderPattern = /:(\w+)/g;
+    // Find all matches in the URL pattern
+    const matches = [];
+    let match;
+    while ((match = placeholderPattern.exec(path)) !== null) {
+      matches.push(match[1]);
     }
 
-    routing(req, res){
-        this.req = req
-        this.res = res
-        return this
+    // Get positions of each match
+    this.paramsPos = matches.map(match => {
+      const index = path.indexOf(match);
+      const slashesBefore = path.slice(0, index).match(/\//g);
+      return slashesBefore ? slashesBefore.length : 1;
+    });
+
+    //setting a regex based on given path
+    const regexPattern = path.replace(/:\w+/g, '\\w+');
+    const regex = new RegExp(`^${regexPattern}$`);
+
+    this.path = regex
+    return this
+  }
+
+  async get() {
+    await this.#execMethod('GET', arguments)
+    return this
+  }
+
+  async post() {
+    await this.#execMethod('POST', arguments)
+    return this
+  }
+
+  async put() {
+    await this.#execMethod('PUT', arguments)
+    return this
+  }
+
+  async delete() {
+    await this.#execMethod('DELETE', arguments)
+    return this
+  }
+
+  async update() {
+    await this.#execMethod('UPDATE', arguments)
+    return this
+  }
+
+  async #execMethod(method,Arguments){
+    if (this.req.method === method && (this.path === this.req.url || this.path.test(this.req.url))) {
+      this.#setParams()
+      const promises = [];
+      for (const element of Arguments) {
+        promises.push(element(this.req, this.res));
+      }
+      await Promise.all(promises);
+
+    }
+  }
+
+  #setParams() {
+    const extractedValues = this.paramsPos.map(position => {
+      const parts = this.req.url.split('/');
+      return parts[position];
+    });
+    this.paramsPos.forEach((match, index) => {
+      this.params[match] = extractedValues[index]
+    });
+    this.req.params = this.params
+  }
+
+  async end() {
+    
+
+    if(this.res.error !== undefined){
+      const error = this.res.error
+      this.res.setHeader('Content-Type', 'application/json')
+      console.log(error)
+
+      this.res.statusCode = error.statusCode
+      this.res.end(JSON.stringify({ error: error.message, statusCode: error.statusCode }));
+    }
+    else if (this.res.statusMessage === undefined) {
+      console.log(this.res.errors)
+      console.log('not here')
+      await errResponse(this.req, this.res, 'route not found', 400)
+      return
     }
 
-    route(path){
-        // something/:id/something\
-        const paramPattern = /\/:([^/]+)/g;
-
-        if (paramPattern.test(path)) {
-          // The path contains parameters
-          const pathSegments = path.split('/');
-          const reqSegments = this.req.url.split('/');
-      
-          // Ensure the number of segments match
-          if (pathSegments.length === reqSegments.length) {
-            const params = {};
-            let paramPosition = 0;
-      
-            for (let i = 0; i < pathSegments.length; i++) {
-              const pathSegment = pathSegments[i];
-              const reqSegment = reqSegments[i];
-      
-              if (pathSegment.startsWith(':')) {
-                // If the path segment is a parameter, extract its value
-                const paramName = pathSegment.slice(1);
-                const paramValue = reqSegment;
-      
-                if (!paramValue) {
-                  // If the parameter is empty, return null
-                  params[paramName] = null;
-                } else {
-                  // Otherwise, store the parameter value
-                  params[paramName] = paramValue;
-                }
-      
-                // Check if this is the position of :id
-                if (paramPosition === 1 && !paramValue) {
-                  // :id is empty, return null
-                  this.params =null
-                }
-      
-                paramPosition++;
-              } else if (pathSegment !== reqSegment) {
-                // If non-parameter segments don't match, return null
-                return { type: 'invalid', params: null };
-              }
-            }
-             this.params = params
-            else {
-                this.path = path
-            }
-          }
-        }
-        this.path = new RegExp(path)
-        return this
-    }
-
-    async get(){
-        if(this.req.method === 'GET' && this.path.test(this.req.url)){
-            const promises = [];
-            for (const element of arguments) {
-              promises.push(element(this.req, this.res));
-            }
-            await Promise.all(promises);
-        }
-        await this.next();
-
-        return this
-    }
-
-    async post(){
-        console.log(this.path)
-        if(this.req.method === 'POST' && this.path.test(this.req.url)){
-            const promises = [];
-            for (const element of arguments) {
-              promises.push(element(this.req, this.res));
-            }
-            await Promise.all(promises);
-        }      
-        await this.next();
-
-        return this
-    }
-
-    async put(){
-        if(this.req.method === 'PUT' && this.path.test(this.req.url)){
-            const promises = [];
-            for (const element of arguments) {
-              promises.push(element(this.req, this.res));
-            }
-            await Promise.all(promises);
-        }
-        await this.next();
-
-        return this
-    }
-
-    async delete(){
-        if(this.req.method === 'DELETE' && this.path.test(this.req.url)){
-            const promises = [];
-            for (const element of arguments) {
-              promises.push(element(this.req, this.res));
-            }
-            await Promise.all(promises);
-        }
-        await this.next();
-
-        return this
-    }
-
-    async update(){
-        if(this.req.method === 'UPDATE' && this.path.test(this.req.url)){
-            const promises = [];
-            for (const element of arguments) {
-              promises.push(element(this.req, this.res));
-            }
-            await Promise.all(promises);
-            
-        }
-        await this.next();
-        return this
-    }
-
-    async next(){
-        console.log('here')
-        if(this.res.statusMessage===undefined){
-            console.log('not here')
-            await errResponse(this.req, this.res, 'route not found', 400)
-        }
-        
-    }
+  }
 }
 
 module.exports = Router
