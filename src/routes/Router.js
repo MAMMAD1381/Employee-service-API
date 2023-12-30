@@ -8,7 +8,7 @@ class Router {
     this.path
     this.paramsPos = []
     this.params = {}
-    this.isSimple
+    this.matchesName = {}
   }
 
   routing(req, res) {
@@ -21,19 +21,19 @@ class Router {
 
     const placeholderPattern = /:(\w+)/g;
     // Find all matches in the URL pattern
-    const matches = [];
+    const matches = []
     let match;
     while ((match = placeholderPattern.exec(path)) !== null) {
       matches.push(match[1]);
     }
-
     // Get positions of each match
     this.paramsPos = matches.map(match => {
       const index = path.indexOf(match);
       const slashesBefore = path.slice(0, index).match(/\//g);
-      return slashesBefore ? slashesBefore.length : 1;
+      const n = slashesBefore ? slashesBefore.length : 1;
+      this.matchesName[n] = match
+      return n
     });
-
     //setting a regex based on given path
     const regexPattern = path.replace(/:\w+/g, '\\w+');
     const regex = new RegExp(`^${regexPattern}$`);
@@ -85,7 +85,7 @@ class Router {
       return parts[position];
     });
     this.paramsPos.forEach((match, index) => {
-      this.params[match] = extractedValues[index]
+      this.params[this.matchesName[match]] = extractedValues[index]
     });
     this.req.params = this.params
   }
@@ -96,14 +96,11 @@ class Router {
     if(this.res.error !== undefined){
       const error = this.res.error
       this.res.setHeader('Content-Type', 'application/json')
-      console.log(error)
 
       this.res.statusCode = error.statusCode
       this.res.end(JSON.stringify({ error: error.message, statusCode: error.statusCode }));
     }
     else if (this.res.statusMessage === undefined) {
-      console.log(this.res.errors)
-      console.log('not here')
       await errResponse(this.req, this.res, 'route not found', 400)
       return
     }

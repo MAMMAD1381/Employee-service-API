@@ -1,27 +1,26 @@
+const validation = require('../../middleware/validation')
 const { User } = require('../model/User')
 const CustomError = require('../utils/CustomError')
 const { getReqData } = require('../utils/utils')
 
 
 const addUser = async (req, res) => {
+    const validationResult = validation(req, res, {paramsName:['id'], bodyFieldsName:['username', 'pass', 'nationalID', 'jobSkill', 'jobTitle', 'name', 'family', 'gender', 'educationResult']})
     res.setHeader('Content-Type', 'application/json')
     const data = JSON.parse(await getReqData(req))
     const user = await User.create(data)
-    let response
-    console.log(user)
     if (user.user === null || user.error !== '') {
         res.error = new CustomError(user.error, 403)
         return
     }
 
     res.statusCode = 201
-    response = {
+
+
+    res.write(JSON.stringify({
         success: true,
         user: user.user
-    }
-
-
-    res.write(JSON.stringify(response));
+    }));
     res.end();
 }
 
@@ -50,6 +49,16 @@ const updateUser = async (req, res) => {
 }
 
 const getUser = async (req, res) => {
+    const validationResult = await validation(req, res, {paramsName:['id'], bodyFieldsName:['username', 'pass', 'nationalID', 'jobSkill', 'jobTitle', 'name', 'family', 'gender', 'educationResult']})
+    const idRegex = /^\d+$/
+    console.log(idRegex.test('kmlm'))
+    // console(idRegex.test(id))
+    console.log(validationResult)
+    if(validationResult instanceof Error){
+        
+        res.error = validationResult
+        return  
+    }
     res.setHeader('Content-Type', 'application/json')
     const id = req.url.split("/")[2];
     console.log(id)
