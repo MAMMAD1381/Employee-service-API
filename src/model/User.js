@@ -109,7 +109,8 @@ class User {
      */
     static async get(id) {
         const users = await this.#fetchUsers()
-
+        if(users[id] === undefined || users[id] === null)
+            return new CustomError('user with this id not found', 404)
         return users[id]
     }
 

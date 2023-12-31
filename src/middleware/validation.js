@@ -2,6 +2,7 @@ const CustomError = require("../utils/CustomError")
 const { getReqData } = require("../utils/utils")
 const Validator = require("../utils/Validator")
 
+// TODO we don't have optional fields
 const validation = async (req, res, { paramsName, bodyFieldsName }) => {
     let params = req.params
     let bodyFields = req.data ? req.data.data : undefined
@@ -19,6 +20,7 @@ const validation = async (req, res, { paramsName, bodyFieldsName }) => {
     if (bodyFields !== undefined) {
         for (const key in bodyFields) {
             // console.log(key, bodyFields[key])
+            bodyFieldsName = bodyFieldsName.filter(field => field !== key)
             if (key === 'id') {
                 if (!Validator.validateID(bodyFields[key]))
                     return new CustomError('pls provide a correct id', 400)
@@ -69,6 +71,8 @@ const validation = async (req, res, { paramsName, bodyFieldsName }) => {
             }
             
         }
+        if(bodyFieldsName.length !== 0)
+            return new CustomError(`pls provide the necessary fields of body: ${bodyFieldsName.map(field => `${field}, `)}`, 400)
     }
 
     return null

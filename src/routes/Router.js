@@ -91,8 +91,6 @@ class Router {
   }
 
   async end() {
-    
-
     if(this.res.error !== undefined){
       const error = this.res.error
       this.res.setHeader('Content-Type', 'application/json')

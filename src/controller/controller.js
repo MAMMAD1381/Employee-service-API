@@ -14,7 +14,7 @@ const addUser = async (req, res) => {
         return
     }
     req.data = data
-    const validationResult = await validation(req, res, { paramsName: ['id'], bodyFieldsName: ['username', 'pass', 'nationalID', 'jobSkill', 'jobTitle', 'name', 'family', 'gender', 'educationResult'] })
+    const validationResult = await validation(req, res, { paramsName: ['id'], bodyFieldsName: ['username', 'password', 'nationalID', 'jobSkill', 'jobTitle', 'name', 'family', 'gender', 'education'] })
 
     if (validationResult !== null) {
         res.error = validationResult
@@ -47,7 +47,7 @@ const updateUser = async (req, res) => {
         return
     }
     req.data = data
-    const validationResult = await validation(req, res, { paramsName: ['id'], bodyFieldsName: ['username', 'pass', 'nationalID', 'jobSkill', 'jobTitle', 'name', 'family', 'gender', 'educationResult'] })
+    const validationResult = await validation(req, res, { paramsName: ['id'], bodyFieldsName: ['username', 'password', 'nationalID', 'jobSkill', 'jobTitle', 'name', 'family', 'gender', 'education'] })
 
     if (validationResult !== null) {
         res.error = validationResult
