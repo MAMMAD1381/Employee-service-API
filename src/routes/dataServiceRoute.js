@@ -16,8 +16,10 @@ const test2 = async (req, res) => {
 const dataService = async (req, res) => {
     let router = new Router()
     router.routing(req, res)
-    ;(await router.route('/dataService/:id').get(getUser)).put(updateUser)
-    ;(await router.route('/dataService').post(addUser)).end()
+    ;(await router.route('/dataService/:id').get(getUser))
+    // ;(await router.route('/dataService').post(addUser)).end()
+    ;(await (await router.route('/dataService').post(addUser)).put(updateUser)).end()
+
     // router.end()
     // ;(await router.route('/dataService/:id').get(test)).put(test2)
 

@@ -1,4 +1,5 @@
 const CustomError = require('../utils/CustomError')
+const Password = require('../utils/Password')
 const { Redis } = require('../utils/Redis')
 
 /**
@@ -12,7 +13,7 @@ class User {
      */
     static async create(Data) {
         const { data, parent } = Data
-        const { id, username, password, nationalID, jobSkill, jobTitle, name, family, gender, education, email, phone } = data
+        const { id, password } = data
 
 
         const users = await this.#fetchUsers()
@@ -29,11 +30,14 @@ class User {
         if (users[id] !== undefined && !isMaster)
             return new CustomError(`user with this id already exists`, 400)
 
-        // save the changes to db
+        // add parent field to user
         data['parent'] = parent
+
+        // encrypt pass
+        const {salt, hash} = Password.encryptPassword(password)
+        data['password'] = `${salt}:${hash}`
         users[id] = data
         await this.#saveUsers(users)
-
 
 
         if (parents[parent] === undefined) {
@@ -53,56 +57,32 @@ class User {
      * @param {object} Data - given Data in body which includes: data, parent
      * @returns Response which can return any error or user on success
      */
-    static async update(id, Data) {
+    static async update(Data) {
         const { data, parent } = Data
-        let response = {
-            user: {},
-            error: ''
-        }
+        const { id, password } = data
 
-        // validation for given id and Data
-        if (id === null || id === undefined) {
-            response.error = 'pls provide an id'
-            return response
-        }
-        if (data === null || data === undefined) {
-            response.error = 'pls provide data'
-            return response
-        }
-        if (parent === null || parent === undefined) {
-            response.error = 'pls provide a parent id'
-            return response
-        }
 
-        // check if parent exists on userData
-        let userData = await Redis.get('data')
-        if (userData === null) {
-            userData = {}
-        }
-        else {
-            userData = JSON.parse(userData)
-        }
-        // checking duplicate user id
-        if (userData[id] === undefined) {
-            response.error = `user with this id doesn't exists`
-            return response
-        }
+        const users = await this.#fetchUsers()
+        const parents = await this.#fetchParents()
+
+        // parent exists ?
+        if (parents[parent] === undefined)
+            return new CustomError(`parent id doesn't exists`, 404)
+
+        // checking if user exists
+        if (users[id] === undefined)
+            return new CustomError(`user with this id already doesn't exists`, 400)
 
         // update userData on redis
-        userData[id] = data
-        await Redis.set('data', JSON.stringify(userData))
+        // add parent field to user
+        data['parent'] = parent
 
-        let parents = await Redis.get('parents')
-        if (parents === null) {
-            parents = {}
-        }
-        else {
-            parents = JSON.parse(parents)
-        }
-        if (parents[parent] === undefined) {
-            response.error = `given parent id doesn't exists`
-            return response
-        }
+        // encrypt pass
+        const {salt, hash} = Password.encryptPassword(password)
+        data['password'] = `${salt}:${hash}`
+        users[id] = data
+        await this.#saveUsers(users)
+
 
         for (let p in parents) {
             parents[p].filter(element => parseInt(element) !== parseInt(id));
@@ -117,9 +97,9 @@ class User {
 
         parents[parent].push(id)
 
-        await Redis.set('parents', JSON.stringify(parents))
-        response.user = { id, data: userData[id] }
-        return response
+        await this.#saveParents(parents)
+
+        return users[id]
     }
 
     /**
@@ -128,34 +108,9 @@ class User {
      * @returns Response which can return any error or user on success
      */
     static async get(id) {
-        let response = {
-            user: {},
-            error: ''
-        }
+        const users = await this.#fetchUsers()
 
-        // validation for given id
-        if (id === null || id === undefined) {
-            response.error = 'pls provide an id'
-            return response
-        }
-
-        // check if parent exists on userData
-        let userData = await Redis.get('data')
-        if (userData === null) {
-            userData = {}
-        }
-        else {
-            userData = JSON.parse(userData)
-        }
-
-        // checking duplicate user id
-        if (userData[id] === undefined) {
-            response.error = `user with this id doesn't exists`
-            return response
-        }
-
-        response.user = { id, data: userData[id] }
-        return response
+        return users[id]
     }
 
     static async #fetchUsers(){

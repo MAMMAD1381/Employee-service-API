@@ -4,21 +4,18 @@ const Validator = require("../utils/Validator")
 
 const validation = async (req, res, { paramsName, bodyFieldsName }) => {
     let params = req.params
-    let bodyFields = req.data.data
+    let bodyFields = req.data ? req.data.data : undefined
 
+    // params validation
     if (params !== undefined)
         for (let param in params) {
-            switch (param) {
-                case 'id':
-                    if (!Validator.validateID(params[param])) {
-                        return new CustomError('pls provide an id in parameters', 400)
-                    }
-                    break
+            if (param === 'id') {
+                if (!Validator.validateID(params[param]))
+                    return new CustomError('pls provide a correct id', 400)
             }
         }
 
-
-
+    // body validation
     if (bodyFields !== undefined) {
         for (const key in bodyFields) {
             // console.log(key, bodyFields[key])
