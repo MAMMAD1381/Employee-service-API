@@ -9,6 +9,7 @@ class Router {
     this.paramsPos = []
     this.params = {}
     this.matchesName = {}
+    this.handlers = {}
   }
 
   routing(req, res) {
@@ -42,32 +43,46 @@ class Router {
     return this
   }
 
-  async get() {
-    await this.#execMethod('GET', arguments)
+  get() {
+    const currentPath = this.path
+    this.handlers['GET'] = {args: arguments, path: currentPath}
     return this
   }
 
-  async post() {
-    await this.#execMethod('POST', arguments)
+  post() {
+    const currentPath = this.path
+    this.handlers['POST'] = {args: arguments, path: currentPath}
     return this
   }
 
-  async put() {
-    await this.#execMethod('PUT', arguments)
+  put() {
+    const currentPath = this.path
+    this.handlers['PUT'] = {args: arguments, path: currentPath}
     return this
   }
 
-  async delete() {
-    await this.#execMethod('DELETE', arguments)
+  delete() {
+    const currentPath = this.path
+    this.handlers['DELETE'] = {args: arguments, path: currentPath}
     return this
   }
 
-  async update() {
-    await this.#execMethod('UPDATE', arguments)
+  update() {
+    const currentPath = this.path
+    this.handlers['UPDATE'] = {args: arguments, path: currentPath}
     return this
+  }
+
+  async exec(){
+    for(let method in this.handlers){
+      this.path = this.handlers[method].path
+      await this.#execMethod(method, this.handlers[method].args)
+    }
+    await this.#end()
   }
 
   async #execMethod(method,Arguments){
+    console.log(method)
     if (this.req.method === method && (this.path === this.req.url || this.path.test(this.req.url))) {
       this.#setParams()
       const promises = [];
@@ -90,7 +105,7 @@ class Router {
     this.req.params = this.params
   }
 
-  async end() {
+  async #end() {
     if(this.res.error !== undefined){
       const error = this.res.error
       this.res.setHeader('Content-Type', 'application/json')
