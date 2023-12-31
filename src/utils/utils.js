@@ -18,11 +18,5 @@ function getReqData(req) {
     });
 }
 
-const errResponse = async (req, res, errMessage, statusCode)=>{
-    res.setHeader('Content-Type', 'application/json')
-    res.statusCode = statusCode
-    res.end(JSON.stringify({ error: errMessage, statusCode }));
-}
-
-module.exports = {getReqData, errResponse};
+module.exports = {getReqData};
 

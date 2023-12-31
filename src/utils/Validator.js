@@ -1,7 +1,3 @@
-const CustomError = require("./CustomError")
-const Regex = require("./Regex")
-const { errResponse } = require("./utils")
-
 class Validator{
     static validateID(id){
         return id !== null && id !== undefined && /^\d{5}$/.test(id)

@@ -9,7 +9,7 @@ class User {
     /**
      * this function creates a user with given Data
      * @param {object} Data - Data object which includes: id, data, parent
-     * @returns Response which can return any error or user on success
+     * @returns user or CustomError - Response which can return any error or user on success
      */
     static async create(Data) {
         const { data, parent } = Data
@@ -34,7 +34,7 @@ class User {
         data['parent'] = parent
 
         // encrypt pass
-        const {salt, hash} = Password.encryptPassword(password)
+        const { salt, hash } = Password.encryptPassword(password)
         data['password'] = `${salt}:${hash}`
         users[id] = data
         await this.#saveUsers(users)
@@ -55,7 +55,7 @@ class User {
      * this function updates the user with given data, like changing parent or data
      * @param {string} id - given data in url
      * @param {object} Data - given Data in body which includes: data, parent
-     * @returns Response which can return any error or user on success
+     * @returns user or CustomError - Response which can return any error or user on success
      */
     static async update(Data) {
         const { data, parent } = Data
@@ -78,7 +78,7 @@ class User {
         data['parent'] = parent
 
         // encrypt pass
-        const {salt, hash} = Password.encryptPassword(password)
+        const { salt, hash } = Password.encryptPassword(password)
         data['password'] = `${salt}:${hash}`
         users[id] = data
         await this.#saveUsers(users)
@@ -105,16 +105,20 @@ class User {
     /**
      * returns the certain user based on given id
      * @param {string} id 
-     * @returns Response which can return any error or user on success
+     * @returns user or CustomError - Response which can return any error or user on success
      */
     static async get(id) {
         const users = await this.#fetchUsers()
-        if(users[id] === undefined || users[id] === null)
+        if (users[id] === undefined || users[id] === null)
             return new CustomError('user with this id not found', 404)
         return users[id]
     }
 
-    static async #fetchUsers(){
+    /**
+     * fetches users using Redis
+     * @returns users
+     */
+    static async #fetchUsers() {
         await Redis.changeDBindex(0)
         let users = await Redis.get('users')
         if (users === null)
@@ -125,12 +129,20 @@ class User {
         return users
     }
 
-    static async #saveUsers(users){
+    /**
+     * saves the users into redis
+     * @param {Object} users 
+     */
+    static async #saveUsers(users) {
         await Redis.changeDBindex(0)
         await Redis.set('users', JSON.stringify(users))
     }
 
-    static async #fetchParents(){
+    /**
+    * fetches parents using Redis
+    * @returns parents
+    */
+    static async #fetchParents() {
         await Redis.changeDBindex(1)
         let parents = await Redis.get('parents')
         if (parents === null) {
@@ -142,7 +154,11 @@ class User {
         return parents
     }
 
-    static async #saveParents(parents){
+    /**
+     * saves parents using Redis
+     * @returns users
+     */
+    static async #saveParents(parents) {
         await Redis.changeDBindex(1)
         await Redis.set('parents', JSON.stringify(parents))
     }

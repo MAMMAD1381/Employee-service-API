@@ -1,7 +1,9 @@
-const { isResEnded, reset } = require("../helper/isResponseFinished")
 const { errResponse } = require("../utils/utils")
 
 class Router {
+  /**
+   * defining all global variables
+   */
   constructor() {
     this.req
     this.res
@@ -12,14 +14,25 @@ class Router {
     this.handlers = {}
   }
 
+  /**
+   * 
+   * @param {Request} req 
+   * @param {Response} res 
+   * @returns {ThisType} this - return current object for chainablity purposes
+   */
   routing(req, res) {
     this.req = req
     this.res = res
     return this
   }
 
+  /**
+   * set's a global path in order to execute functions for right routes, 
+   * this function accepts urls with placeholders like something/:id
+   * @param {String} path 
+   * @returns {ThisType} this - return current object for chainablity purposes
+   */
   route(path) {
-
     const placeholderPattern = /:(\w+)/g;
     // Find all matches in the URL pattern
     const matches = []
@@ -73,6 +86,9 @@ class Router {
     return this
   }
 
+  /**
+   * a method which should be called at last for execution of routes
+   */
   async exec(){
     for(let method in this.handlers){
       this.path = this.handlers[method].path
@@ -81,6 +97,11 @@ class Router {
     await this.#end()
   }
 
+  /**
+   * executes all given functions in different routes
+   * @param {String} method 
+   * @param {Array} Arguments 
+   */
   async #execMethod(method,Arguments){
     console.log(method)
     if (this.req.method === method && (this.path === this.req.url || this.path.test(this.req.url))) {
@@ -94,6 +115,9 @@ class Router {
     }
   }
 
+  /**
+   * set's params on request if available
+   */
   #setParams() {
     const extractedValues = this.paramsPos.map(position => {
       const parts = this.req.url.split('/');
@@ -105,6 +129,9 @@ class Router {
     this.req.params = this.params
   }
 
+  /**
+   * will be called internally at last, it returns error responses if error is provided
+   */
   async #end() {
     if(this.res.error !== undefined){
       const error = this.res.error
