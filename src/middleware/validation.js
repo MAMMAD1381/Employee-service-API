@@ -1,20 +1,11 @@
-const CustomError = require("../src/utils/CustomError")
-const { getReqData } = require("../src/utils/utils")
-const Validator = require("../src/utils/Validator")
+const CustomError = require("../utils/CustomError")
+const { getReqData } = require("../utils/utils")
+const Validator = require("../utils/Validator")
 
 const validation = async (req, res, { paramsName, bodyFieldsName }) => {
     let params = req.params
-    let bodyFields = await getReqData(req)
-    if (bodyFields) {
-        bodyFields = JSON.parse(bodyFields)
-        bodyFields = bodyFields.data
-    }
-    else {
-        bodyFields = null
-    }
+    let bodyFields = req.data.data
 
-    req.body = bodyFields
-    // console.log(bodyFields)
     if (params !== undefined)
         for (let param in params) {
             switch (param) {

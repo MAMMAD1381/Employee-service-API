@@ -5,6 +5,11 @@
 const redis = require('redis');
 let client = redis.createClient();
 class Redis{
+    static async changeDBindex(index){
+        if(index<16 && index>=0){
+            await client.select(index)
+        }
+    }
     /**
      * used for connecting to redis-server
      * use it once

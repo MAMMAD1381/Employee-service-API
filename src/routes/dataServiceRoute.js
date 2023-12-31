@@ -1,4 +1,4 @@
-const validation = require('../../middleware/validation')
+const validation = require('../middleware/validation')
 const { addUser, updateUser, getUser } = require('../controller/controller')
 const { reset } = require('../helper/isResponseFinished')
 const { errResponse } = require('../utils/utils')
