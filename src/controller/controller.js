@@ -5,17 +5,24 @@ const { getReqData } = require('../utils/utils')
 
 
 const addUser = async (req, res) => {
-    const validationResult = validation(req, res, {paramsName:['id'], bodyFieldsName:['username', 'pass', 'nationalID', 'jobSkill', 'jobTitle', 'name', 'family', 'gender', 'educationResult']})
-    res.setHeader('Content-Type', 'application/json')
-    const data = JSON.parse(await getReqData(req))
+    const validationResult = await validation(req, res, {paramsName:['id'], bodyFieldsName:['username', 'pass', 'nationalID', 'jobSkill', 'jobTitle', 'name', 'family', 'gender', 'educationResult']})
+    
+    if( validationResult !== null){
+        res.error = validationResult
+        return
+    }
+    // const data = JSON.parse(await getReqData(req))
+    const data = req.data
+    console.log(data)
     const user = await User.create(data)
+    console.log(data, user)
     if (user.user === null || user.error !== '') {
         res.error = new CustomError(user.error, 403)
         return
     }
+    res.setHeader('Content-Type', 'application/json')
 
     res.statusCode = 201
-
 
     res.write(JSON.stringify({
         success: true,
@@ -25,6 +32,12 @@ const addUser = async (req, res) => {
 }
 
 const updateUser = async (req, res) => {
+    const validationResult = await validation(req, res, {paramsName:['id'], bodyFieldsName:['username', 'pass', 'nationalID', 'jobSkill', 'jobTitle', 'name', 'family', 'gender', 'educationResult']})
+    
+    if( validationResult !== null){
+        res.error = validationResult
+        return
+    }
     res.setHeader('Content-Type', 'application/json')
     const data = JSON.parse(await getReqData(req))
     const id = req.url.split("/")[2];
@@ -50,14 +63,10 @@ const updateUser = async (req, res) => {
 
 const getUser = async (req, res) => {
     const validationResult = await validation(req, res, {paramsName:['id'], bodyFieldsName:['username', 'pass', 'nationalID', 'jobSkill', 'jobTitle', 'name', 'family', 'gender', 'educationResult']})
-    const idRegex = /^\d+$/
-    console.log(idRegex.test('kmlm'))
-    // console(idRegex.test(id))
-    console.log(validationResult)
-    if(validationResult instanceof Error){
-        
+    
+    if( validationResult !== null){
         res.error = validationResult
-        return  
+        return
     }
     res.setHeader('Content-Type', 'application/json')
     const id = req.url.split("/")[2];

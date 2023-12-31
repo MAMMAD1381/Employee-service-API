@@ -4,19 +4,19 @@ const { errResponse } = require("./utils")
 
 class Validator{
     static validateID(id){
-        return id === null || id === undefined || !/^\d{5}$/.test(id)
+        return id !== null && id !== undefined && /^\d{5}$/.test(id)
     }
 
     static validateUsername(username){
-        return username === null || username === undefined || !/^[a-zA-Z0-9_]{3,16}$/.test(username)
+        return username !== null && username !== undefined && /^[a-zA-Z0-9_]{3,16}$/.test(username)
     }
 
     static validatePass(pass){
-        return pass === null || pass === undefined || !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(pass)
+        return pass !== null && pass !== undefined && /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(pass)
     }
     
     static validateNationalID(NationalID){
-        return NationalID === null || NationalID === undefined || !/^[a-zA-Z0-9]{6,}$/.test(NationalID)
+        return NationalID !== null && NationalID !== undefined && /^[a-zA-Z0-9]{6,}$/.test(NationalID)
     }
 
     static validateStr(str, {hasChar, hasNum, length}){
@@ -29,11 +29,11 @@ class Validator{
         if (hasNum) {
           regexString += '(?=.*\\d)';
         }
-    
-        regexString += `[a-zA-Z\\d]{${length},}$`;
+
+        regexString += `[a-zA-Z\\d]{0,${length}}$`;
     
         const commonTextRegex = new RegExp(regexString);
-        return str === null || str === undefined || !commonTextRegex.test(str)
+        return str !== null && str !== undefined && commonTextRegex.test(str)
     }
 
     static validateGender(gender){
@@ -41,11 +41,11 @@ class Validator{
     }
 
     static validateEmail(email){
-        return email === null || email === undefined || !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)
+        return email !== null && email !== undefined && /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)
     }
 
     static validatePhone(phone){
-        return phone === null || phone === undefined || !/^[\d\s.-]+$/.test(phone)
+        return phone !== null && phone !== undefined && /^[\d\s.-]+$/.test(phone)
     }
 }
 
