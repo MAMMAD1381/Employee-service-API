@@ -103,7 +103,6 @@ class Router {
    * @param {Array} Arguments 
    */
   async #execMethod(method,Arguments){
-    console.log(method)
     if (this.req.method === method && (this.path === this.req.url || this.path.test(this.req.url))) {
       this.#setParams()
       const promises = [];

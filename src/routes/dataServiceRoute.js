@@ -12,7 +12,7 @@ const dataService = async (req, res) => {
     router.routing(req, res)
     router.route('/dataService/:id').get(getUser)
     router.route('/dataService').post(addUser).put(updateUser)
-    await router.exec()
+    router.exec()
 }
 
 module.exports = dataService
