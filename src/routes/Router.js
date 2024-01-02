@@ -152,7 +152,7 @@ class Router {
    */
   async #execMethod(method,Arguments){
     if (this.req.method === method && (this.path === this.req.url || this.path.test(this.req.url))) {
-      console.log(this.path)
+      // console.log(this.path)
 
       await this.#paramParser()
       const promises = [];

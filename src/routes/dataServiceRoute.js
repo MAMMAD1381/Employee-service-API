@@ -12,11 +12,13 @@ const dataService = async (req, res) => {
     let router = new Router()
 
     const bodyParserMiddleware = router.middleware(bodyParser)
-    const validationMiddleware = router.middleware(validation, ['id'], ['username', 'password', 'nationalID', 'jobSkill', 'jobTitle', 'name', 'family', 'gender', 'education'])
+    const validationMiddleware = router.middleware(validation, [], ['username', 'password', 'nationalID', 'jobSkill', 'jobTitle', 'name', 'family', 'gender', 'education'])
+    const getRouteValidationMiddleware = router.middleware(validation, ['id'], [])
+
 
 
     router.routing(req, res)
-    router.route('/dataService/:id').get(validationMiddleware, getUser)
+    router.route('/dataService/:id').get(getRouteValidationMiddleware, getUser)
     router.route('/dataService').post(bodyParserMiddleware, validationMiddleware, addUser).put(bodyParserMiddleware, validationMiddleware ,updateUser)
     router.exec()
 }

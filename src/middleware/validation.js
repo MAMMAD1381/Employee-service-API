@@ -10,15 +10,16 @@ const Validator = require("../utils/Validator")
  * @param {Object} {paramsName, bodyFieldsName} 
  * @returns null or CustomError
  */
-const validation = async ( paramsName, bodyFieldsName,{body}, req, res) => {
+const validation = async (paramsName, bodyFieldsName, { body }, req, res) => {
 
     let params = req.params
-    console.log(params)
+    console.log(bodyFieldsName.length)
     let bodyFields = body ? body.data : undefined
 
     // params validation
     if (params !== undefined)
         for (let param in params) {
+            paramsName = paramsName.filter(field => field !== param)
             if (param === 'id') {
                 if (!Validator.validateID(params[param]))
                     throw new CustomError('pls provide a correct id', 400)
@@ -78,13 +79,20 @@ const validation = async ( paramsName, bodyFieldsName,{body}, req, res) => {
                 if (!Validator.validatePhone(bodyFields[key]))
                     throw new CustomError('pls provide a correct phone number', 400)
             }
-            
-        }
-        if(bodyFieldsName.length !== 0)
-            throw new CustomError(`pls provide the necessary fields of body: ${bodyFieldsName.map(field => `${field}, `)}`, 400)
-    }
 
-    return {body}
+
+        }
+
+
+
+    }
+    if (paramsName.length !== 0)
+        throw new CustomError(`pls provide the necessary params: ${paramsName.map(field => `${field}, `)}`, 400)
+    console.log(bodyFieldsName)
+    if (bodyFieldsName.length !== 0) {
+        throw new CustomError(`pls provide the necessary fields of body: ${bodyFieldsName.map(field => `${field}, `)}`, 400)
+    }
+    return { body }
 
 }
 
