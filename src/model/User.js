@@ -12,8 +12,6 @@ class User {
      * @returns user or CustomError - Response which can return any error or user on success
      */
     static async create(Data) {
-        // throw(new Error('shit err'))
-        // console.log(Data)
         const { data, parent } = Data
         const { id, password } = data
 
@@ -69,11 +67,11 @@ class User {
 
         // parent exists ?
         if (parents[parent] === undefined)
-            return new CustomError(`parent id doesn't exists`, 404)
+            throw new CustomError(`parent id doesn't exists`, 404)
 
         // checking if user exists
         if (users[id] === undefined)
-            return new CustomError(`user with this id already doesn't exists`, 400)
+            throw new CustomError(`user with this id already doesn't exists`, 400)
 
         // update userData on redis
         // add parent field to user
@@ -113,7 +111,7 @@ class User {
         const users = await this.#fetchUsers()
         const user = users[id]
         if (user === undefined || user === null)
-            return new CustomError('user with this id not found', 404)
+            throw new CustomError('user with this id not found', 404)
         user.password = undefined
         return user
     }

@@ -13,6 +13,7 @@ const Validator = require("../utils/Validator")
 const validation = async ( paramsName, bodyFieldsName,{body}, req, res) => {
 
     let params = req.params
+    console.log(params)
     let bodyFields = body ? body.data : undefined
 
     // params validation
