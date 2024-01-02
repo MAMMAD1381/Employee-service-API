@@ -8,25 +8,28 @@ const { getReqData } = require('../utils/utils')
  * @param {Request} req 
  * @param {Response} res 
  */
-const addUser = async (req, res) => {
-    let data = await getReqData(req)
-    if (data) {
-        data = JSON.parse(data)
-    }
-    else {
-        res.error = new CustomError('nothing was provided as body', 400)
-        return
-    }
-    req.data = data
-
-    const validationResult = await validation(req, res, { paramsName: ['id'], bodyFieldsName: ['username', 'password', 'nationalID', 'jobSkill', 'jobTitle', 'name', 'family', 'gender', 'education'] })
-    if (validationResult !== null) {
-        res.error = validationResult
-        return
-    }
+const addUser = async ({body}, req, res) => {
+    // let data = await getReqData(req)
+    // if (data) {
+    //     data = JSON.parse(data)
+    // }
+    // else {
+    //     res.error = new CustomError('nothing was provided as body', 400)
+    //     return
+    // }
+    // req.data = data
+    // body = req.body
+    // console.log(body)
+    // console.log(body)
+    // const validationResult = await validation(req, res, { paramsName: ['id'], bodyFieldsName: ['username', 'password', 'nationalID', 'jobSkill', 'jobTitle', 'name', 'family', 'gender', 'education'] })
+    // if (validationResult !== null) {
+    //     res.error = validationResult
+    //     return
+    // }
 
     // add user using User model
-    const user = await User.create(data)
+    const user = await User.create(body)
+
     if (user instanceof CustomError) {
         res.error = user
         return

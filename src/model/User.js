@@ -12,6 +12,8 @@ class User {
      * @returns user or CustomError - Response which can return any error or user on success
      */
     static async create(Data) {
+        // throw(new Error('shit err'))
+        // console.log(Data)
         const { data, parent } = Data
         const { id, password } = data
 
@@ -24,11 +26,11 @@ class User {
 
         // parent exists ?
         if (users[parent] === undefined && !isMaster)
-            return new CustomError(`parent id doesn't exists`, 404)
+            throw new CustomError(`parent id doesn't exists`, 404)
 
         // checking duplicate user id
         if (users[id] !== undefined && !isMaster)
-            return new CustomError(`user with this id already exists`, 400)
+            throw new CustomError(`user with this id already exists`, 400)
 
         // add parent field to user
         data['parent'] = parent

@@ -1,4 +1,5 @@
-const { errResponse } = require("../utils/utils")
+const { errResponse } = require("../utils/bodyParser")
+const CustomError = require("../utils/CustomError")
 
 class Router {
   /**
@@ -12,7 +13,13 @@ class Router {
     this.params = {}
     this.matchesName = {}
     this.handlers = {}
-    this.lastResult = {}
+  }
+
+  middleware(originalFunction, ...fixedArgs) {
+    return async function (...args) {
+      const response = await originalFunction.apply(null, fixedArgs.concat(args))
+      return response;
+    };
   }
 
   /**
@@ -25,13 +32,6 @@ class Router {
     this.req = req
     this.res = res
     return this
-  }
-
-  middleware(func, ...args){
-    return function(...args2){
-      const response = func(...args, ...args2)
-      return response
-    }
   }
 
   /**
@@ -64,58 +64,50 @@ class Router {
     return this
   }
 
-  get() {
-    const currentPath = this.path
-    this.handlers['GET'] = {args: arguments, path: currentPath}
+  get(...args) {
+    const path = this.path
+    this.handlers['GET'] = { args, path, req:this.req, res:this.res}
     return this
   }
 
-  post() {
-    const currentPath = this.path
-    this.handlers['POST'] = {args: arguments, path: currentPath}
+  post(...args) {
+    const path = this.path
+    this.handlers['POST'] = { args, path , req:this.req, res:this.res}
     return this
   }
 
-  put() {
-    const currentPath = this.path
-    this.handlers['PUT'] = {args: arguments, path: currentPath}
+  put(...args) {
+    const path = this.path
+    this.handlers['PUT'] = { args, path , req:this.req, res:this.res}
     return this
   }
 
-  delete() {
-    const currentPath = this.path
-    this.handlers['DELETE'] = {args: arguments, path: currentPath}
+  delete(...args) {
+    const path = this.path
+    this.handlers['DELETE'] = { args, path , req:this.req, res:this.res}
     return this
   }
 
-  update() {
-    const currentPath = this.path
-    this.handlers['UPDATE'] = {args: arguments, path: currentPath}
+  update(...args) {
+    const path = this.path
+    this.handlers['UPDATE'] = { args, path , req:this.req, res:this.res}
     return this
   }
 
   /**
    * a method which should be called at last for execution of routes
    */
-  async exec(){
-    try{
-      for(let method in this.handlers){
-        this.path = this.handlers[method].path
-        await this.#execMethod(method, this.handlers[method].args)
-      }
+  async exec() {
+    for (let method in this.handlers) {
+      console.log(this.params)
+      // this.path = this.handlers[method].path
+      // this.req = this.handlers[method].req
+      // this.res = this.handlers[method].res
+      // this.#setParams()
+      console.log(this.path, this.params, this.req.url)
+      await this.#execMethod(method, this.handlers[method].args)
     }
-    catch(error){
-      console.log(error.message, error.stack)
-      this.res.setHeader('Content-Type', 'application/json')
-      this.res.statusCode = error.statusCode
-      // this.res.write('sada')
-      this.res.end(JSON.stringify({error: error.message}));
-      return
-      // await this.#end()
-
-    }
-
-
+    await this.#end()
   }
 
   /**
@@ -123,16 +115,19 @@ class Router {
    * @param {String} method 
    * @param {Array} Arguments 
    */
-  async #execMethod(method,Arguments){
+  async #execMethod(method, Arguments) {
+    // this.req.params = params
     if (this.req.method === method && (this.path === this.req.url || this.path.test(this.req.url))) {
       this.#setParams()
       const promises = [];
       for (const element of Arguments) {
         // console.log(element)
-        // if(this.lastResult === undefined) lastResult = {}
-        // console.log(this.lastResult)
-        this.lastResult = await element(this.lastResult, this.req, this.res)
-        // promises.push(element(this.req, this.res));
+        const response = await element(this.req, this.res)
+        if(response instanceof Error){
+          this.res.error = response
+          return
+        }
+        promises.push(element(this.req, this.res));
       }
       // await Promise.all(promises);
 
@@ -157,7 +152,7 @@ class Router {
    * will be called internally at last, it returns error responses if error is provided
    */
   async #end() {
-    if(this.res.error !== undefined){
+    if (this.res.error !== undefined) {
       const error = this.res.error
       this.res.setHeader('Content-Type', 'application/json')
 
