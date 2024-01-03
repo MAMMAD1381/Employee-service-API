@@ -98,6 +98,7 @@ class Router {
       }
       return
     }
+    await this.#end()
   }
 
   /**
@@ -176,6 +177,20 @@ class Router {
 
     this.path = regex
     return this
+  }
+
+  
+  /**
+   * will be called internally at last, it returns error responses if error is provided
+   */
+  async #end() {
+    if (this.res.statusMessage === undefined) {
+      this.res.setHeader('Content-Type', 'application/json')
+      this.res.statusCode = 400
+      this.res.end(JSON.stringify({error: 'you have used bad route or http method'}));
+      return
+    }
+
   }
 }
 
