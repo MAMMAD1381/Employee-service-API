@@ -1,5 +1,4 @@
 const CustomError = require("../utils/CustomError")
-const { getReqData } = require("../utils/utils")
 const Validator = require("../utils/Validator")
 
 // TODO we don't have optional fields

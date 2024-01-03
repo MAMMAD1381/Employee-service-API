@@ -1,6 +1,4 @@
-const paramParser = require("../middleware/paramParser")
 const CustomError = require("../utils/CustomError")
-const { errResponse } = require("../utils/utils")
 
 class Router {
   /**
@@ -26,13 +24,6 @@ class Router {
     this.req = req
     this.res = res
     return this
-  }
-
-  middleware(func, ...args){
-    return function(...args2){
-      const response = func(...args, ...args2)
-      return response
-    }
   }
 
   /**
