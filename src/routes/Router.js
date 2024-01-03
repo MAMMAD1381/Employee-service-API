@@ -1,3 +1,4 @@
+const CustomError = require("../utils/CustomError")
 const { errResponse } = require("../utils/utils")
 
 class Router {
@@ -12,7 +13,6 @@ class Router {
     this.params = {}
     this.matchesName = {}
     this.handlers = {}
-    this.lastResult = {}
   }
 
   /**
@@ -41,50 +41,7 @@ class Router {
    * @returns {ThisType} this - return current object for chainablity purposes
    */
   route(path) {
-    // const placeholderPattern = /:(\w+)/g;
-    // // Find all matches in the URL pattern
-    // const matches = []
-    // let match;
-    // while ((match = placeholderPattern.exec(path)) !== null) {
-    //   matches.push(match[1]);
-    // }
-    // // Get positions of each match
-    // this.paramsPos = matches.map(match => {
-    //   const index = path.indexOf(match);
-    //   const slashesBefore = path.slice(0, index).match(/\//g);
-    //   const n = slashesBefore ? slashesBefore.length : 1;
-    //   this.matchesName[n] = match
-    //   return n
-    // });
-    // //setting a regex based on given path
-    // const regexPattern = path.replace(/:\w+/g, '\\w+');
-    // const regex = new RegExp(`^${regexPattern}$`);
-
     this.path = path
-    return this
-  }
-
-  reg(path) {
-    const placeholderPattern = /:(\w+)/g;
-    // Find all matches in the URL pattern
-    const matches = []
-    let match;
-    while ((match = placeholderPattern.exec(path)) !== null) {
-      matches.push(match[1]);
-    }
-    // Get positions of each match
-    this.paramsPos = matches.map(match => {
-      const index = path.indexOf(match);
-      const slashesBefore = path.slice(0, index).match(/\//g);
-      const n = slashesBefore ? slashesBefore.length : 1;
-      this.matchesName[n] = match
-      return n
-    });
-    //setting a regex based on given path
-    const regexPattern = path.replace(/:\w+/g, '\\w+');
-    const regex = new RegExp(`^${regexPattern}$`);
-
-    this.path = regex
     return this
   }
 
@@ -122,27 +79,25 @@ class Router {
    * a method which should be called at last for execution of routes
    */
   async exec(){
-    // await this.#paramParser()
-    // console.log(this.req.params, this.params, this.req.url)
-
     try{
       for(let method in this.handlers){
-        this.reg(this.handlers[method].path)
+        this.#setRegex(this.handlers[method].path)
         await this.#execMethod(method, this.handlers[method].args)
       }
     }
     catch(error){
-      console.log(error.message, error.stack)
+      console.log( error.message, error.stack)
       this.res.setHeader('Content-Type', 'application/json')
-      this.res.statusCode = error.statusCode
-      // this.res.write('sada')
-      this.res.end(JSON.stringify({error: error.message}));
+      if(error instanceof CustomError){
+        this.res.statusCode = error.statusCode
+        this.res.end(JSON.stringify({error: error.message}));
+      }
+      else {
+        this.res.statusCode = 500
+        this.res.end(JSON.stringify({error: 'server error'}));
+      }
       return
-      // await this.#end()
-
     }
-
-
   }
 
   /**
@@ -152,19 +107,13 @@ class Router {
    */
   async #execMethod(method,Arguments){
     if (this.req.method === method && (this.path === this.req.url || this.path.test(this.req.url))) {
-      // console.log(this.path)
 
-      await this.#paramParser()
-      const promises = [];
+      this.req.params = await this.#paramParser()
+      this.req.body = await this.#bodyParser()
+
       for (const element of Arguments) {
-        console.log(element, this.req.params, this.params)
-        // if(this.lastResult === undefined) lastResult = {}
-        // console.log(this.lastResult)
-        this.lastResult = await element(this.lastResult, this.req, this.res)
-        // promises.push(element(this.req, this.res));
+        await element(this.req, this.res)
       }
-      // await Promise.all(promises);
-
     }
   }
 
@@ -174,62 +123,59 @@ class Router {
   async #paramParser() {
     const extractedValues = this.paramsPos.map(position => {
       const parts = this.req.url.split('/');
-      console.log(parts)
       return parts[position];
     });
     this.paramsPos.forEach((match, index) => {
       this.params[this.matchesName[match]] = extractedValues[index]
     });
-    this.req.params = this.params
+    return this.params
   }
 
-  async #bodyParser({}, req, res) {
+  async #bodyParser() {
     return new Promise((resolve, reject) => {
       let body = '';
   
-      req.on('data', (chunk) => {
-        // Accumulate the chunks of the raw request body
+      this.req.on('data', (chunk) => {
         body += chunk;
       });
   
-      req.on('end', () => {
-        // At this point, the entire request body has been received
-        // You can process the raw body here
-        // For example, if it's JSON, you can parse it:
+      this.req.on('end', () => {
         try {
           const parsedBody = JSON.parse(body);
-          // req.body = parsedBody;
-          // Resolve the Promise with the parsed body
-          resolve({ body: parsedBody });
+          resolve(parsedBody);
         } catch (error) {
-          // Reject the Promise with an error
-          throw(new CustomError('error parsing body', 500));
+          resolve({});
         }
       });
   
-      req.on('error', (error) => {
-        // Reject the Promise if there's an error during data streaming
+      this.req.on('error', (error) => {
         reject(new CustomError('error streaming request data', 500));
       });
     });
   }
 
-  /**
-   * will be called internally at last, it returns error responses if error is provided
-   */
-  async #end() {
-    if(this.res.error !== undefined){
-      const error = this.res.error
-      this.res.setHeader('Content-Type', 'application/json')
-
-      this.res.statusCode = error.statusCode
-      this.res.end(JSON.stringify({ error: error.message, statusCode: error.statusCode }));
+  #setRegex(path) {
+    const placeholderPattern = /:(\w+)/g;
+    // Find all matches in the URL pattern
+    const matches = []
+    let match;
+    while ((match = placeholderPattern.exec(path)) !== null) {
+      matches.push(match[1]);
     }
-    else if (this.res.statusMessage === undefined) {
-      await errResponse(this.req, this.res, 'route not found', 400)
-      return
-    }
+    // Get positions of each match
+    this.paramsPos = matches.map(match => {
+      const index = path.indexOf(match);
+      const slashesBefore = path.slice(0, index).match(/\//g);
+      const n = slashesBefore ? slashesBefore.length : 1;
+      this.matchesName[n] = match
+      return n
+    });
+    //setting a regex based on given path
+    const regexPattern = path.replace(/:\w+/g, '\\w+');
+    const regex = new RegExp(`^${regexPattern}$`);
 
+    this.path = regex
+    return this
   }
 }
 

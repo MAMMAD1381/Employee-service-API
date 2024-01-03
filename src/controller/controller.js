@@ -1,18 +1,16 @@
-const validation = require('../middleware/validation')
 const { User } = require('../model/User')
 const CustomError = require('../utils/CustomError')
-const { getReqData } = require('../utils/utils')
 
 /**
  * adds user using User model
  * @param {Request} req 
  * @param {Response} res 
  */
-const addUser = async ({body}, req, res) => {
+const addUser = async (req, res) => {
     // add user using User model
+    let body = req.body
     const user = await User.create(body)
 
-    // send data
     res.setHeader('Content-Type', 'application/json')
     res.statusCode = 201
     res.write(JSON.stringify({
@@ -27,29 +25,10 @@ const addUser = async ({body}, req, res) => {
  * @param {Request} req 
  * @param {Response} res 
  */
-const updateUser = async ({body}, req, res) => {
-    // let data = await getReqData(req)
-    // if (data) {
-    //     data = JSON.parse(data)
-    // }
-    // else {
-    //     res.error = new CustomError('nothing was provided as body', 400)
-    //     return
-    // }
-    // req.data = data
-
-    // const validationResult = await validation(req, res, { paramsName: ['id'], bodyFieldsName: ['username', 'password', 'nationalID', 'jobSkill', 'jobTitle', 'name', 'family', 'gender', 'education'] })
-    // if (validationResult !== null) {
-    //     res.error = validationResult
-    //     return
-    // }
-
+const updateUser = async (req, res) => {
+    let body = req.body
     // update user
     let user = await User.update(body)
-    // if (user instanceof CustomError) {
-    //     res.error = user
-    //     return
-    // }
 
     res.setHeader('Content-Type', 'application/json')
     res.statusCode = 200
@@ -66,19 +45,9 @@ const updateUser = async ({body}, req, res) => {
  * @param {Request} res 
  * @returns 
  */
-const getUser = async ({body}, req, res) => {
-    // const validationResult = await validation(req, res, { paramsName: ['id'] })
-    // if (validationResult !== null) {
-    //     res.error = validationResult
-    //     return
-    // }
-
-    const id = req.url.split("/")[2];
+const getUser = async (req, res) => {
+    let id = req.params.id
     let user = await User.get(id)
-    // if (user instanceof CustomError) {
-    //     res.error = user
-    //     return
-    // }
 
     res.setHeader('Content-Type', 'application/json')
     res.statusCode = 200
