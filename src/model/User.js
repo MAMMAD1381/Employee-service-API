@@ -24,11 +24,11 @@ class User {
 
         // parent exists ?
         if (users[parent] === undefined && !isMaster)
-            throw new CustomError(`parent id doesn't exists`, 404)
+            throw new CustomError(404, `parent`)
 
         // checking duplicate user id
         if (users[id] !== undefined && !isMaster)
-            throw new CustomError(`user with this id already exists`, 400)
+            throw new CustomError(400, `user exists`)
 
         // add parent field to user
         data['parent'] = parent
@@ -64,11 +64,11 @@ class User {
 
         // parent exists ?
         if (parents[parent] === undefined)
-            throw new CustomError(`parent id doesn't exists`, 404)
+            throw new CustomError(404, `parent`)
 
         // checking if user exists
         if (users[id] === undefined)
-            throw new CustomError(`user with this id already doesn't exists`, 400)
+            throw new CustomError(400, `user exists`)
 
         // encrypt pass
         const { salt, hash } = Password.encryptPassword(password)
@@ -98,7 +98,7 @@ class User {
         const users = await this.#fetchUsers()
         const user = users[id]
         if (user === undefined || user === null)
-            throw new CustomError('user with this id not found', 404)
+            throw new CustomError(404, 'user')
         user.password = undefined
         return user
     }

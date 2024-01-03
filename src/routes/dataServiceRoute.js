@@ -12,7 +12,6 @@ const createMiddleware = require('../helper/createMiddleware')
  */
 const dataService = async (req, res) => {
     let router = new Router()
-    router.routing(req, res)
 
     // routes
     let routingRoute1 = '/dataService/:id'
@@ -25,10 +24,14 @@ const dataService = async (req, res) => {
     let paramParserMiddleware = createMiddleware(paramParser, routingRoute1)
 
     // routings
-    router.route(routingRoute1).get(paramParserMiddleware, validationMiddleware1, getUser).put(paramParserMiddleware, bodyParser, validationMiddleware2 ,updateUser)
-    router.route(routingRoute2).post(bodyParser, validationMiddleware3, addUser)
-    // router.route(routingRoute1).get(paramParserMiddleware, validationMiddleware1, getUser)
-    // router.route(routingRoute2).post(bodyParser, validationMiddleware3, addUser).put(bodyParser, validationMiddleware3 ,updateUser)
+    router.routing(req, res)
+        .route(routingRoute1)
+        .get(paramParserMiddleware, validationMiddleware1, getUser)
+        .put(paramParserMiddleware, bodyParser, validationMiddleware2 ,updateUser)
+
+    router.route(routingRoute2)
+        .post(bodyParser, validationMiddleware3, addUser)
+        
     router.exec()
 }
 
