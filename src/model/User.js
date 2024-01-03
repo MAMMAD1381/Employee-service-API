@@ -39,13 +39,9 @@ class User {
         users[id] = data
         await this.#saveUsers(users)
 
-
-        if (parents[parent] === undefined) {
-            parents[parent] = []
-        }
+        parents[id] = parent
 
         // push the changes to redis
-        parents[parent].push(id)
         await this.#saveParents(parents)
 
         return users[id]
@@ -57,10 +53,11 @@ class User {
      * @param {object} Data - given Data in body which includes: data, parent
      * @returns user or CustomError - Response which can return any error or user on success
      */
-    static async update(Data) {
+    static async update(id, Data) {
         const { data, parent } = Data
-        const { id, password } = data
+        const { password } = data
 
+        console.log(id)
 
         const users = await this.#fetchUsers()
         const parents = await this.#fetchParents()
@@ -73,33 +70,23 @@ class User {
         if (users[id] === undefined)
             throw new CustomError(`user with this id already doesn't exists`, 400)
 
-        // update userData on redis
-        // add parent field to user
-        data['parent'] = parent
-
         // encrypt pass
         const { salt, hash } = Password.encryptPassword(password)
         data['password'] = `${salt}:${hash}`
-        users[id] = data
+
+        // add parent field to user
+        let newID = data.id
+
+        delete users[id]
+        delete parents[id]
+        data['parent'] = parent
+        users[newID] = data
+        parents[newID] = parent
+
         await this.#saveUsers(users)
-
-
-        for (let p in parents) {
-            parents[p].filter(element => parseInt(element) !== parseInt(id));
-            let temp = []
-            for (let i = 0; i < parents[p].length; i++) {
-                if (parseInt(parents[p][i]) !== parseInt(id)) {
-                    temp.push(parents[p][i])
-                }
-            }
-            parents[p] = temp
-        }
-
-        parents[parent].push(id)
-
         await this.#saveParents(parents)
 
-        return users[id]
+        return users[newID]
     }
 
     /**

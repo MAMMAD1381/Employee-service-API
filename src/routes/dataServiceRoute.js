@@ -14,22 +14,21 @@ const dataService = async (req, res) => {
     let router = new Router()
     router.routing(req, res)
 
-    let paramNames = ['id']
-    let bodyFieldNames = []
-    let routingRoute = '/dataService/:id'
-    let validationMiddleware = createMiddleware(validation, paramNames, bodyFieldNames)
-    let paramParserMiddleware = createMiddleware(paramParser, routingRoute)
+    // routes
+    let routingRoute1 = '/dataService/:id'
+    let routingRoute2 = "/dataService"
 
-    router.route(routingRoute).get(paramParserMiddleware, validationMiddleware, getUser)
+    // middleWares
+    let validationMiddleware1 = createMiddleware(validation, ['id'], [])
+    let validationMiddleware2 = createMiddleware(validation, ['id'], ['username', 'password', 'nationalID', 'jobSkill', 'jobTitle', 'name', 'family', 'gender', 'education'])
+    let validationMiddleware3 = createMiddleware(validation, [], ['username', 'password', 'nationalID', 'jobSkill', 'jobTitle', 'name', 'family', 'gender', 'education'])
+    let paramParserMiddleware = createMiddleware(paramParser, routingRoute1)
 
-    
-    paramNames = []
-    bodyFieldNames = ['username', 'password', 'nationalID', 'jobSkill', 'jobTitle', 'name', 'family', 'gender', 'education']
-    routingRoute = "/dataService"
-    validationMiddleware = createMiddleware(validation, paramNames, bodyFieldNames)
-
-    router.route(routingRoute).post(bodyParser, validationMiddleware, addUser).put(bodyParser, validationMiddleware ,updateUser)
-
+    // routings
+    router.route(routingRoute1).get(paramParserMiddleware, validationMiddleware1, getUser).put(paramParserMiddleware, bodyParser, validationMiddleware2 ,updateUser)
+    router.route(routingRoute2).post(bodyParser, validationMiddleware3, addUser)
+    // router.route(routingRoute1).get(paramParserMiddleware, validationMiddleware1, getUser)
+    // router.route(routingRoute2).post(bodyParser, validationMiddleware3, addUser).put(bodyParser, validationMiddleware3 ,updateUser)
     router.exec()
 }
 

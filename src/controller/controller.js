@@ -27,8 +27,9 @@ const addUser = async (req, res) => {
  */
 const updateUser = async (req, res) => {
     let body = req.body
+    let id = req.params.id
     // update user
-    let user = await User.update(body)
+    let user = await User.update(id, body)
 
     res.setHeader('Content-Type', 'application/json')
     res.statusCode = 200
