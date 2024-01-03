@@ -1,4 +1,5 @@
 const { User } = require('../model/User')
+const commonResponse = require('../utils/commonResponse')
 const CustomError = require('../utils/CustomError')
 
 /**
@@ -9,15 +10,9 @@ const CustomError = require('../utils/CustomError')
 const addUser = async (req, res) => {
     // add user using User model
     let body = req.body
-    const user = await User.create(body)
+    await User.create(body)
 
-    res.setHeader('Content-Type', 'application/json')
-    res.statusCode = 201
-    res.write(JSON.stringify({
-        success: true,
-        user
-    }));
-    res.end();
+    commonResponse(res, {message: 'user saved'}, 201)
 }
 
 /**
@@ -29,15 +24,8 @@ const updateUser = async (req, res) => {
     let body = req.body
     let id = req.params.id
     // update user
-    let user = await User.update(id, body)
-
-    res.setHeader('Content-Type', 'application/json')
-    res.statusCode = 200
-    res.write(JSON.stringify({
-        success: true,
-        user
-    }));
-    res.end();
+    await User.update(id, body)
+    commonResponse(res, {message: 'user updated'}, 200)
 }
 
 /**
@@ -50,13 +38,7 @@ const getUser = async (req, res) => {
     let id = req.params.id
     let user = await User.get(id)
 
-    res.setHeader('Content-Type', 'application/json')
-    res.statusCode = 200
-    res.write(JSON.stringify({
-        success: true,
-        user
-    }));
-    res.end();
+    commonResponse(res, {user}, 200)
 }
 
 module.exports = { addUser, updateUser, getUser }
