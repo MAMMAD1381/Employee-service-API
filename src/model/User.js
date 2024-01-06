@@ -1,6 +1,6 @@
 const CustomError = require('../utils/CustomError')
 const Password = require('../utils/Password')
-const { Redis } = require('../utils/Redis')
+const { Redis } = require('./Redis')
 
 /**
  * @class - represents user object in app
