@@ -1,11 +1,16 @@
 const CustomError = require('../utils/CustomError')
 const Password = require('../utils/Password')
+const Lock = require('./lock')
 const { Redis } = require('./Redis')
 
 /**
  * @class - represents user object in app
  */
 class User {
+    static lock = false
+    constructor(){
+        this.lock = new Lock()
+    }
     /**
      * this function creates a user with given Data
      * @param {object} Data - Data object which includes: id, data, parent
@@ -36,13 +41,12 @@ class User {
         // encrypt pass
         const { salt, hash } = Password.encryptPassword(password)
         data['password'] = `${salt}:${hash}`
-        users[id] = data
-        await this.#saveUsers(users)
 
+        users[id] = data
         parents[id] = parent
 
-        // push the changes to redis
-        await this.#saveParents(parents)
+        const lock = new Lock();
+        await Promise.all([this.#saveUsers(users, lock), this.#saveParents(parents, lock)])
 
         return users[id]
     }
@@ -83,8 +87,8 @@ class User {
         users[newID] = data
         parents[newID] = parent
 
-        await this.#saveUsers(users)
-        await this.#saveParents(parents)
+        const lock = new Lock();
+        await Promise.all([this.#saveUsers(users, lock), this.#saveParents(parents, lock)])
 
         return users[newID]
     }
@@ -122,9 +126,14 @@ class User {
      * saves the users into redis
      * @param {Object} users 
      */
-    static async #saveUsers(users) {
-        await Redis.changeDBindex(0)
-        await Redis.set('users', JSON.stringify(users))
+    static async #saveUsers(users, lock) {
+        await lock.acquire();
+        try {
+          await Redis.changeDBindex(0)
+          await Redis.set('users', JSON.stringify(users))
+        } finally {
+          lock.release();
+        }
     }
 
     /**
@@ -147,9 +156,14 @@ class User {
      * saves parents using Redis
      * @returns users
      */
-    static async #saveParents(parents) {
-        await Redis.changeDBindex(1)
-        await Redis.set('parents', JSON.stringify(parents))
+    static async #saveParents(parents, lock) {
+        await lock.acquire();
+        try {
+          await Redis.changeDBindex(1)
+          await Redis.set('parents', JSON.stringify(parents))
+        } finally {
+          lock.release();
+        }
     }
 }
 module.exports = { User }

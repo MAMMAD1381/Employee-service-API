@@ -1,6 +1,5 @@
 const http = require('http')
 const dataService = require('./routes/dataServiceRoute')
-// const {Redis} = require('./utils/Redis')
 
 
 class Server{

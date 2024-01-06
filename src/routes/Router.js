@@ -72,10 +72,13 @@ class Router {
    */
   async exec(){
     try{
+      const executionBuffer = []
       for(let method in this.handlers){
         this.#setRegex(this.handlers[method].path)
-        await this.#execMethod(method, this.handlers[method].args)
+        // await this.#execMethod(method, this.handlers[method].args)
+        executionBuffer.push(this.#execMethod(method, this.handlers[method].args))
       }
+      await Promise.all(executionBuffer)
     }
     catch(error){
       console.log(error.stack)

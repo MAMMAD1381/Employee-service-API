@@ -1,6 +1,5 @@
 const { User } = require('../model/User')
 const commonResponse = require('../utils/commonResponse')
-const CustomError = require('../utils/CustomError')
 
 /**
  * adds user using User model
