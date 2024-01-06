@@ -6,32 +6,50 @@ const Lock = require('../helper/Lock');
 
 class UserService {
   static async create(Data) {
-    const { data, parent } = Data;
+    const { data, parentID } = Data;
     const { id } = data;
+    const users = await UserRepository.getUsers()
+    const parents = await UserRepository.getParents()
+    const isMaster = Object.keys(users).length === 0 && Object.keys(parents).length === 0 && parentID === id;
+    console.log(Object.keys(users).length, Object.keys(parents).length, parentID , id, isMaster)
+    const user = await UserRepository.getUser(id)
+    const parent = await UserRepository.getUser(parentID)
 
-    const users = await UserRepository.fetchUsers();
-    const parents = await UserRepository.fetchParents();
+    if(parent === undefined && !isMaster)
+        throw new CustomError(400, `parentID doesn't exists`)
 
-    const isMaster = Object.keys(users).length === 0 && Object.keys(parents).length === 0 && parent === id;
+    if(user !== undefined && !isMaster)
+        throw new CustomError(400, 'user already id exists')
 
-    if (users[parent] === undefined && !isMaster) {
-      throw new CustomError(404, `parent`);
-    }
+    const newUser = await UserRepository.createUser({id, ...data, parentID})
 
-    if (users[id] !== undefined && !isMaster) {
-      throw new CustomError(400, `user exists`);
-    }
+    return newUser
+    
 
-    data['parent'] = parent;
-    const newUser = User.create(data, parent);
 
-    users[id] = data;
-    parents[id] = parent;
+    // const users = await UserRepository.fetchUsers();
+    // const parents = await UserRepository.fetchParents();
 
-    const lock = new Lock();
-    await Promise.all([UserRepository.saveUsers(users, lock), UserRepository.saveParents(parents, lock)]);
+    
 
-    return newUser;
+    // if (users[parent] === undefined && !isMaster) {
+    //   throw new CustomError(404, `parent`);
+    // }
+
+    // if (users[id] !== undefined && !isMaster) {
+    //   throw new CustomError(400, `user exists`);
+    // }
+
+    // data['parent'] = parent;
+    // const newUser = User.create(data, parent);
+
+    // users[id] = data;
+    // parents[id] = parent;
+
+    // const lock = new Lock();
+    // await Promise.all([UserRepository.saveUsers(users, lock), UserRepository.saveParents(parents, lock)]);
+
+    // return newUser;
   }
 
   static async update(id, Data) {

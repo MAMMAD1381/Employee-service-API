@@ -1,11 +1,26 @@
 // repositories/UserRepository.js
-const Redis = require('./Redis');
+const RedisRepository = require('./RedisRepository');
 const Lock = require('../helper/Lock');
+const User = require('../models/User');
+const CustomError = require('../utils/CustomError');
 
 class UserRepository {
 
-    static async createUser(user){
-
+    static async createUser(bodyFields){
+        const users = await UserRepository.getUsers();
+        const parents = await UserRepository.getParents();
+        // console.log(bodyFields)
+        let newUser = new User(bodyFields)
+        newUser = newUser.object()
+        // console.log(newUser)
+        users[newUser.id] = newUser
+        parents[newUser.id] = newUser.parent;
+            
+    
+        await UserRepository.#saveUsers(users)
+        await UserRepository.#saveParents(parents)
+    
+        return newUser;
     }
 
     static async updateUser(id){
@@ -17,8 +32,8 @@ class UserRepository {
     }
 
     static async getUsers() {
-        await Redis.changeDBindex(0);
-        let users = await Redis.get('users');
+        await RedisRepository.changeDBindex(0);
+        let users = await RedisRepository.get('users');
         if (users === null) {
             users = {};
         } else {
@@ -27,19 +42,18 @@ class UserRepository {
         return users;
     }
 
-    static async saveUsers(users, lock) {
-        await lock.acquire();
+    static async #saveUsers(users) {
         try {
-            await Redis.changeDBindex(0);
-            await Redis.set('users', JSON.stringify(users));
-        } finally {
-            lock.release();
+            await RedisRepository.changeDBindex(0);
+            await RedisRepository.set('users', JSON.stringify(users));
+        } catch(error) {
+            throw CustomError(500, 'saving users')
         }
     }
 
-    static async fetchParents() {
-        await Redis.changeDBindex(1);
-        let parents = await Redis.get('parents');
+    static async getParents() {
+        await RedisRepository.changeDBindex(1);
+        let parents = await RedisRepository.get('parents');
         if (parents === null) {
             parents = {};
         } else {
@@ -48,13 +62,12 @@ class UserRepository {
         return parents;
     }
 
-    static async saveParents(parents, lock) {
-        await lock.acquire();
+    static async #saveParents(parents) {
         try {
-            await Redis.changeDBindex(1);
-            await Redis.set('parents', JSON.stringify(parents));
-        } finally {
-            lock.release();
+            await RedisRepository.changeDBindex(1);
+            await RedisRepository.set('parents', JSON.stringify(parents));
+        } catch {
+            throw CustomError(500, 'saving parents')
         }
     }
 }

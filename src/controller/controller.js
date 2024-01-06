@@ -1,4 +1,4 @@
-const { User } = require('../model/User')
+const { User } = require('../models/User')
 const UserService = require('../services/UserService')
 const commonResponse = require('../utils/commonResponse')
 
@@ -10,8 +10,8 @@ const commonResponse = require('../utils/commonResponse')
 const addUser = async (req, res) => {
     // add user using User model
     let body = req.body
-    await User.create(body)
-    await UserService.create()
+    // await User.create(body)
+    await UserService.create(body)
 
     commonResponse(res, {message: 'user saved'}, 201)
 }
