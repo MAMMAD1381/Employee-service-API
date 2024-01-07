@@ -11,7 +11,7 @@ class UserService {
     const users = await UserRepository.getUsers()
     const parents = await UserRepository.getParents()
     const isMaster = Object.keys(users).length === 0 && Object.keys(parents).length === 0 && parentID === id;
-    console.log(Object.keys(users).length, Object.keys(parents).length, parentID , id, isMaster)
+    // console.log(Object.keys(users).length, Object.keys(parents).length, parentID , id, isMaster)
     const user = await UserRepository.getUser(id)
     const parent = await UserRepository.getUser(parentID)
 
@@ -20,8 +20,8 @@ class UserService {
 
     if(user !== undefined && !isMaster)
         throw new CustomError(400, 'user already id exists')
-
-    const newUser = await UserRepository.createUser({id, ...data, parentID})
+    console.log('user service', {id, ...data, parentID})
+    const newUser = await UserRepository.createUser({...data, parentID})
 
     return newUser
     

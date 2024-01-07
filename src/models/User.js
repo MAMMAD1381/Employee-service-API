@@ -1,13 +1,15 @@
 const commonResponse = require('../utils/commonResponse')
 const CustomError = require('../utils/CustomError')
 const Validator = require('../utils/Validator')
+const Password = require('../utils/Password')
 
 class User {
-    constructor(...userFields) {
+    constructor(userFields) {
         // {id, username, password, nationalID, jobSkill, jobTitle, name, family, gender, education, email, phone, parent}
+        console.log('user fields', userFields.id)
+
         try {
-            if (this.#validate(...userFields)) {
-                console.log(userFields.id)
+            if (this.#validate(userFields)) {
                 this.id = userFields.id
                 this.username = userFields.username
                 this.password = this.#encryptPassword(userFields.password)
@@ -20,11 +22,12 @@ class User {
                 this.education = userFields.education
                 this.email = userFields.email
                 this.phone = userFields.phone
-                this.parent = userFields.parent
+                this.parent = userFields.parentID
                 // return this
             }
         }
         catch (error) {
+            console.log(error.stack)
             throw new CustomError(400, 'ModelError: validation' + error.message)
         }
     }
@@ -68,7 +71,9 @@ class User {
 
     #encryptPassword(password) {
         try {
+            console.log('password', password)
             const { salt, hash } = Password.encryptPassword(password)
+            console.log(salt, hash)
             return `${salt}:${hash}`
         }
         catch (error) {
@@ -77,7 +82,6 @@ class User {
     }
 
     #validate({ id, username, password, nationalID, jobSkill, jobTitle, name, family, gender, education, email, phone, parent }) {
-        // console.log(id)
         if (!Validator.validateID(id))
             throw new CustomError(400, 'id')
 
@@ -113,6 +117,8 @@ class User {
 
         if (!Validator.validatePhone(phone))
             throw new CustomError(400, 'phone')
+
+        return true
     }
 }
 

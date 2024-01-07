@@ -9,14 +9,13 @@ class UserRepository {
     static async createUser(bodyFields){
         const users = await UserRepository.getUsers();
         const parents = await UserRepository.getParents();
-        // console.log(bodyFields)
         let newUser = new User(bodyFields)
         newUser = newUser.object()
-        // console.log(newUser)
         users[newUser.id] = newUser
         parents[newUser.id] = newUser.parent;
             
     
+        console.log('user repo', newUser)
         await UserRepository.#saveUsers(users)
         await UserRepository.#saveParents(parents)
     
