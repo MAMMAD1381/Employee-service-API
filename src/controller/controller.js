@@ -1,4 +1,3 @@
-const { User } = require('../models/User')
 const UserService = require('../services/UserService')
 const commonResponse = require('../utils/commonResponse')
 const CustomError = require('../utils/CustomError')
