@@ -49,14 +49,13 @@ class UserService {
   }
 
   static async get(id) {
-    const users = await UserRepository.fetchUsers();
-    const user = users[id];
+    const user = await UserRepository.getUser(id)
 
-    if (user === undefined || user === null) {
-      throw new CustomError(404, 'user');
-    }
+    if(user === undefined)
+      throw new CustomError(404, 'user id')
 
-    return user;
+    user.password = undefined
+    return user
   }
 }
 

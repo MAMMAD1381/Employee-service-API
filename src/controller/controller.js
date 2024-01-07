@@ -8,9 +8,8 @@ const commonResponse = require('../utils/commonResponse')
  * @param {Response} res 
  */
 const addUser = async (req, res) => {
-    // add user using User model
     let body = req.body
-    // await User.create(body)
+
     await UserService.create(body)
 
     commonResponse(res, {message: 'user saved'}, 201)
@@ -24,8 +23,9 @@ const addUser = async (req, res) => {
 const updateUser = async (req, res) => {
     let body = req.body
     let id = req.params.id
-    // update user
+
     await UserService.update(id, body)
+
     commonResponse(res, {message: 'user updated'}, 200)
 }
 
@@ -37,7 +37,8 @@ const updateUser = async (req, res) => {
  */
 const getUser = async (req, res) => {
     let id = req.params.id
-    let user = await User.get(id)
+    
+    let user = await UserService.get(id)
 
     commonResponse(res, {user}, 200)
 }

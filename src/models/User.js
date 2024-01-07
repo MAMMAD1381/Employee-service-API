@@ -5,7 +5,6 @@ const Password = require('../utils/Password')
 
 class User {
     constructor(userFields) {
-        // {id, username, password, nationalID, jobSkill, jobTitle, name, family, gender, education, email, phone, parent}
         console.log('user fields', userFields.id)
 
         try {
@@ -23,7 +22,6 @@ class User {
                 this.email = userFields.email
                 this.phone = userFields.phone
                 this.parent = userFields.parentID
-                // return this
             }
         }
         catch (error) {
