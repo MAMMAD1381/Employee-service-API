@@ -25,7 +25,7 @@ const updateUser = async (req, res) => {
     let body = req.body
     let id = req.params.id
     // update user
-    await User.update(id, body)
+    await UserService.update(id, body)
     commonResponse(res, {message: 'user updated'}, 200)
 }
 

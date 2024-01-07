@@ -27,7 +27,6 @@ class User {
             }
         }
         catch (error) {
-            console.log(error.stack)
             throw new CustomError(400, 'ModelError: validation' + error.message)
         }
     }
@@ -71,9 +70,7 @@ class User {
 
     #encryptPassword(password) {
         try {
-            console.log('password', password)
             const { salt, hash } = Password.encryptPassword(password)
-            console.log(salt, hash)
             return `${salt}:${hash}`
         }
         catch (error) {

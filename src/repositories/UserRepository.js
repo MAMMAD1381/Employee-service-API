@@ -7,27 +7,40 @@ const CustomError = require('../utils/CustomError');
 class UserRepository {
 
     static async createUser(bodyFields){
-        const users = await UserRepository.getUsers();
-        const parents = await UserRepository.getParents();
+        const users = await this.getUsers();
+        const parents = await this.getParents();
         let newUser = new User(bodyFields)
-        newUser = newUser.object()
+
         users[newUser.id] = newUser
         parents[newUser.id] = newUser.parent;
-            
     
-        console.log('user repo', newUser)
-        await UserRepository.#saveUsers(users)
-        await UserRepository.#saveParents(parents)
+        await this.#saveUsers(users)
+        await this.#saveParents(parents)
     
         return newUser;
     }
 
-    static async updateUser(id){
+    static async updateUser(id, data){
+        const users = await this.getUsers();
+        const parents = await this.getParents();
 
+        let updatedUser = new User(data)
+        delete users[id]
+        delete parents[id]
+
+        users[updatedUser.id] = updatedUser
+        parents[updatedUser.id] = updatedUser.parent
+
+        await this.#saveUsers(users)
+        await this.#saveParents(parents)
+    
+        return updatedUser;
     }
 
     static async getUser(id){
-
+        const users = await this.getUsers()
+        const user = users[id]
+        return user
     }
 
     static async getUsers() {
