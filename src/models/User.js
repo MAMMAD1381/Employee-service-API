@@ -1,4 +1,3 @@
-const commonResponse = require('../utils/commonResponse')
 const CustomError = require('../utils/CustomError')
 const Validator = require('../utils/Validator')
 const Password = require('../utils/Password')
@@ -26,43 +25,6 @@ class User {
             throw new CustomError(400, 'ModelError: validation' + error.message)
         }
     }
-
-    json() {
-        return JSON.stringify({
-            id: this.id,
-            username: this.username, 
-            password: this.password, 
-            nationalID: this.nationalID, 
-            jobSkill: this.jobSkill, 
-            jobTitle: this.jobTitle, 
-            name: this.name, 
-            family: this.family, 
-            gender: this.gender,
-            education: this.education, 
-            email: this.email, 
-            phone: this.phone, 
-            parent: this.parent
-        })
-    }
-
-    object() {
-        return {
-            id: this.id,
-            username: this.username, 
-            password: this.password, 
-            nationalID: this.nationalID, 
-            jobSkill: this.jobSkill, 
-            jobTitle: this.jobTitle, 
-            name: this.name, 
-            family: this.family, 
-            gender: this.gender,
-            education: this.education, 
-            email: this.email, 
-            phone: this.phone, 
-            parent: this.parent
-        }
-    }
-
 
     #encryptPassword(password) {
         try {

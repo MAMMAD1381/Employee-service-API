@@ -2,13 +2,13 @@ const Server = require('./src/server')
 const RedisRepository = require('./src/repositories/RedisRepository')
 require('dotenv').config({path: './.env'})
 const cluster = require('cluster');
-const numCPUs = require('os').cpus().length;
+const cpuCores = require('os').cpus().length;
 
 
 if (cluster.isMaster) {
     console.log(`Master ${process.pid} is running`);
   
-    for (let i = 0; i < numCPUs; i++) {
+    for (let i = 0; i < cpuCores; i++) {
       cluster.fork();
     }
   

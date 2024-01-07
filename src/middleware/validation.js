@@ -4,15 +4,15 @@ const Validator = require("../utils/Validator")
 // TODO we don't have optional fields
 /**
  * middleware that validates the request for given params and bodyFields
- * @param {Request} req 
- * @param {Response} res 
+ * @param {Request} request 
+ * @param {Response} response 
  * @param {Object} {paramsName, bodyFieldsName} 
  * @returns null or CustomError
  */
-const validation = async (paramsName, bodyFieldsName, req, res) => {
+const validation = async (paramsName, bodyFieldsName, request, response) => {
 
-    let params = req.params
-    let bodyFields = req.body ? req.body.data : undefined
+    let params = request.params
+    let bodyFields = request.body ? request.body.data : undefined
 
     // params validation
     if (params !== undefined)

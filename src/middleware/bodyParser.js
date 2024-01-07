@@ -1,22 +1,22 @@
-const bodyParser = async (req, res) => {
+const bodyParser = async (request, response) => {
     return new Promise((resolve, reject) => {
         let body = '';
 
-        req.on('data', (chunk) => {
+        request.on('data', (chunk) => {
             body += chunk;
         });
 
-        req.on('end', () => {
+        request.on('end', () => {
             try {
                 const parsedBody = JSON.parse(body);
-                req.body = parsedBody
+                request.body = parsedBody
                 resolve(parsedBody);
             } catch (error) {
                 resolve({});
             }
         });
 
-        req.on('error', (error) => {
+        request.on('error', (error) => {
             reject(new CustomError('error streaming request data', 500));
         });
     });

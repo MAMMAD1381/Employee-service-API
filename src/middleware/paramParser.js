@@ -1,4 +1,4 @@
-const paramParser = async (path, req, res) => {
+const paramParser = async (path, request, response) => {
     const placeholderPattern = /:(\w+)/g;
     const matches = []
     let match;
@@ -16,13 +16,13 @@ const paramParser = async (path, req, res) => {
       return n
     });
     const extractedValues = paramsPos.map(position => {
-      const parts = req.url.split('/');
+      const parts = request.url.split('/');
       return parts[position];
     });
     paramsPos.forEach((match, index) => {
       params[matchesName[match]] = extractedValues[index]
     });
-    req.params = params
+    request.params = params
     return params
 }
 

@@ -4,11 +4,11 @@ const CustomError = require('../utils/CustomError')
 
 /**
  * adds user using User model
- * @param {Request} req 
- * @param {Response} res 
+ * @param {Request} request
+ * @param {Response} response 
  */
-const addUser = async (req, res) => {
-    let body = req.body
+const addUser = async (request, response) => {
+    let body = request.body
 
     try{
         await UserService.create(body)
@@ -17,17 +17,17 @@ const addUser = async (req, res) => {
         throw new CustomError(500, 'failed creating user:' + error.message)
     }
 
-    commonResponse(res, {message: 'user saved'}, 201)
+    commonResponse(response, {message: 'user saved'}, 201)
 }
 
 /**
  * updates a user with give id using User model
- * @param {Request} req 
- * @param {Response} res 
+ * @param {Request} request 
+ * @param {Response} response 
  */
-const updateUser = async (req, res) => {
-    let body = req.body
-    let id = req.params.id
+const updateUser = async (request, response) => {
+    let body = request.body
+    let id = request.params.id
 
     try{
         await UserService.update(id, body)
@@ -36,17 +36,17 @@ const updateUser = async (req, res) => {
         throw new CustomError(500, 'failed updating user:' + error.message)
     }
 
-    commonResponse(res, {message: 'user updated'}, 200)
+    commonResponse(response, {message: 'user updated'}, 200)
 }
 
 /**
  * returns the user associated to given id
- * @param {Request} req 
- * @param {Request} res 
+ * @param {Request} request 
+ * @param {Response} response 
  * @returns 
  */
-const getUser = async (req, res) => {
-    let id = req.params.id
+const getUser = async (request, response) => {
+    let id = request.params.id
 
     let user
     try{
@@ -56,7 +56,7 @@ const getUser = async (req, res) => {
         throw new CustomError(500, 'failed fetching user:' + error.message)
     }
 
-    commonResponse(res, {user}, 200)
+    commonResponse(response, {user}, 200)
 }
 
 module.exports = { addUser, updateUser, getUser }

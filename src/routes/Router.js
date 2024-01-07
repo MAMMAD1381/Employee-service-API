@@ -5,24 +5,21 @@ class Router {
    * defining all global variables
    */
   constructor() {
-    this.req
-    this.res
+    this.request
+    this.response
     this.path
-    this.paramsPos = []
-    this.params = {}
-    this.matchesName = {}
     this.handlers = {}
   }
 
   /**
    * 
-   * @param {Request} req 
-   * @param {Response} res 
+   * @param {Request} request 
+   * @param {Response} response 
    * @returns {ThisType} this - return current object for chainablity purposes
    */
-  routing(req, res) {
-    this.req = req
-    this.res = res
+  routing(request, response) {
+    this.request = request
+    this.response = response
     return this
   }
 
@@ -82,14 +79,14 @@ class Router {
     }
     catch(error){
       console.log(error.stack)
-      this.res.setHeader('Content-Type', 'application/json')
+      this.response.setHeader('Content-Type', 'application/json')
       if(error instanceof CustomError){
-        this.res.statusCode = error.statusCode
-        this.res.end(JSON.stringify({error: error.message}));
+        this.response.statusCode = error.statusCode
+        this.response.end(JSON.stringify({error: error.message}));
       }
       else {
-        this.res.statusCode = 500
-        this.res.end(JSON.stringify({error: 'server error'}));
+        this.response.statusCode = 500
+        this.response.end(JSON.stringify({error: 'server error'}));
       }
       return
     }
@@ -102,9 +99,9 @@ class Router {
    * @param {Array} Arguments 
    */
   async #execMethod(method,Arguments){
-    if (this.req.method === method && (this.path === this.req.url || this.path.test(this.req.url))) {
+    if (this.request.method === method && (this.path === this.request.url || this.path.test(this.request.url))) {
       for (const element of Arguments) {
-        await element(this.req, this.res)
+        await element(this.request, this.response)
       }
     }
   }
@@ -122,10 +119,10 @@ class Router {
    * will be called internally at last, it returns error responses if error is provided
    */
   async #end() {
-    if (this.res.statusMessage === undefined) {
-      this.res.setHeader('Content-Type', 'application/json')
-      this.res.statusCode = 400
-      this.res.end(JSON.stringify({error: 'you have used bad route or http method'}));
+    if (this.response.statusMessage === undefined) {
+      this.response.setHeader('Content-Type', 'application/json')
+      this.response.statusCode = 400
+      this.response.end(JSON.stringify({error: 'you have used bad route or http method'}));
       return
     }
 

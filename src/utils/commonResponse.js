@@ -1,8 +1,8 @@
-const commonResponse = (res, message, statusCode) => {
-    res.setHeader('Content-Type', 'application/json')
-    res.statusCode = statusCode
-    res.write(JSON.stringify(message));
-    res.end();
+const commonResponse = (response, message, statusCode) => {
+    response.setHeader('Content-Type', 'application/json')
+    response.statusCode = statusCode
+    response.write(JSON.stringify(message));
+    response.end();
 }
 
 module.exports = commonResponse
