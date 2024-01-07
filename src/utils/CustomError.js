@@ -12,7 +12,7 @@ class CustomError extends Error{
         else if(statusCode === 404)
             message = 'resource not found'
         else if(statusCode === 500)
-            message === 'server error'
+            message = 'server error'
         else{
             statusCode = 500
             message = 'server error'

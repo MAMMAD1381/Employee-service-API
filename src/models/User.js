@@ -5,8 +5,6 @@ const Password = require('../utils/Password')
 
 class User {
     constructor(userFields) {
-        console.log('user fields', userFields.id)
-
         try {
             if (this.#validate(userFields)) {
                 this.id = userFields.id

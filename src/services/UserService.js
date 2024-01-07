@@ -1,8 +1,6 @@
 // services/UserService.js
 const CustomError = require('../utils/CustomError');
-const User = require('../models/User');
 const UserRepository = require('../repositories/UserRepository');
-const Lock = require('../helper/Lock');
 
 class UserService {
   static async create(Data) {

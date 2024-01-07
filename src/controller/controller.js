@@ -1,6 +1,7 @@
 const { User } = require('../models/User')
 const UserService = require('../services/UserService')
 const commonResponse = require('../utils/commonResponse')
+const CustomError = require('../utils/CustomError')
 
 /**
  * adds user using User model
@@ -10,7 +11,12 @@ const commonResponse = require('../utils/commonResponse')
 const addUser = async (req, res) => {
     let body = req.body
 
-    await UserService.create(body)
+    try{
+        await UserService.create(body)
+    }
+    catch(error){
+        throw new CustomError(500, 'failed creating user:' + error.message)
+    }
 
     commonResponse(res, {message: 'user saved'}, 201)
 }
@@ -24,7 +30,12 @@ const updateUser = async (req, res) => {
     let body = req.body
     let id = req.params.id
 
-    await UserService.update(id, body)
+    try{
+        await UserService.update(id, body)
+    }
+    catch(error){
+        throw new CustomError(500, 'failed updating user:' + error.message)
+    }
 
     commonResponse(res, {message: 'user updated'}, 200)
 }
@@ -37,8 +48,14 @@ const updateUser = async (req, res) => {
  */
 const getUser = async (req, res) => {
     let id = req.params.id
-    
-    let user = await UserService.get(id)
+
+    let user
+    try{
+        user = await UserService.get(id)
+    }
+    catch(error){
+        throw new CustomError(500, 'failed fetching user:' + error.message)
+    }
 
     commonResponse(res, {user}, 200)
 }
