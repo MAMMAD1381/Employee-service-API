@@ -14,6 +14,7 @@ const addUser = async (request, response) => {
         await UserService.create(body)
     }
     catch(error){
+        console.log(error.stack)
         throw new CustomError(500, 'failed creating user:' + error.message)
     }
 

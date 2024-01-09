@@ -1,40 +1,47 @@
 // repositories/UserRepository.js
-const RedisRepository = require('./RedisRepository');
+// const RedisRepository = require('./RedisRepository');
 const Lock = require('../helper/Lock');
 const User = require('../models/User');
 const CustomError = require('../utils/CustomError');
+const RedisModel = require('../models/RedisModel');
+const { isDatabaseEmpty } = require('../models/RedisModel');
 
 class UserRepository {
 
-    static async createUser(bodyFields){
-        const users = await this.getUsers();
-        const parents = await this.getParents();
-        let newUser = new User(bodyFields)
-
-        users[newUser.id] = newUser
-        parents[newUser.id] = newUser.parent;
-    
-        await this.#saveUsers(users)
-        await this.#saveParents(parents)
-    
-        return newUser;
+    static async createUser(id, data){
+        const newUser = await RedisModel.addUser(id, data)
+        console.log(newUser)
+        return newUser
+        // const newUser = await this.#saveUser(bodyFields)
+        // return newUser
     }
 
     static async updateUser(id, data){
-        const users = await this.getUsers();
-        const parents = await this.getParents();
 
-        let updatedUser = new User(data)
-        delete users[id]
-        delete parents[id]
+        // RedisModel.getParent(id)
+        // await RedisModel.getParents()
+        // await RedisModel.getUsers()
 
-        users[updatedUser.id] = updatedUser
-        parents[updatedUser.id] = updatedUser.parent
+        await RedisModel.isDatabaseEmpty(0)
+        // await RedisModel.isE
+        return
+        const updatedUser =  await RedisModel.updateUser(id, data)
+        console.log(updatedUser)
+        return updatedUser
+        // const users = await this.getUsers();
+        // const parents = await this.getParents();
 
-        await this.#saveUsers(users)
-        await this.#saveParents(parents)
+        // let updatedUser = new User(data)
+        // delete users[id]
+        // delete parents[id]
+
+        // users[updatedUser.id] = updatedUser
+        // parents[updatedUser.id] = updatedUser.parent
+
+        // // await this.#saveUsers(users)
+        // await this.#saveParents(parents)
     
-        return updatedUser;
+        // return updatedUser;
     }
 
     static async getUser(id){
@@ -45,21 +52,23 @@ class UserRepository {
 
     static async getUsers() {
         await RedisRepository.changeDBindex(0);
-        let users = await RedisRepository.get('users');
-        if (users === null) {
-            users = {};
-        } else {
-            users = JSON.parse(users);
-        }
-        return users;
+        const users = await RedisRepository.getAll()
+        return users
+        // let users = await RedisRepository.get('users');
+        // if (users === null) {
+        //     users = {};
+        // } else {
+        //     users = JSON.parse(users);
+        // }
+        // return users;
     }
 
-    static async #saveUsers(users) {
+    static async #saveUser(user) {
         try {
             await RedisRepository.changeDBindex(0);
-            await RedisRepository.set('users', JSON.stringify(users));
+            await RedisRepository.set(user.id, user);
         } catch(error) {
-            throw CustomError(500, 'saving users')
+            throw CustomError(500, 'saving user')
         }
     }
 
