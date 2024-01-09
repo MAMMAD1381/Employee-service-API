@@ -4,16 +4,15 @@ const Lock = require('../helper/Lock');
 const User = require('../models/User');
 const CustomError = require('../utils/CustomError');
 const RedisModel = require('../models/RedisModel');
-const { isDatabaseEmpty } = require('../models/RedisModel');
+// const { isDatabaseEmpty } = require('../models/RedisModel');
 
 class UserRepository {
 
-    static async createUser(id, data){
+    static async createUser(id, data, parentID){
         const newUser = await RedisModel.addUser(id, data)
+        await RedisModel.addParent(id, parentID)
         console.log(newUser)
         return newUser
-        // const newUser = await this.#saveUser(bodyFields)
-        // return newUser
     }
 
     static async updateUser(id, data){
@@ -45,14 +44,14 @@ class UserRepository {
     }
 
     static async getUser(id){
-        const users = await this.getUsers()
-        const user = users[id]
+        const user = await RedisModel.getUser(id)
+        console.log(user)
         return user
     }
 
     static async getUsers() {
-        await RedisRepository.changeDBindex(0);
-        const users = await RedisRepository.getAll()
+        // await RedisRepository.changeDBindex(0);
+        const users = await RedisModel.getUsers()
         return users
         // let users = await RedisRepository.get('users');
         // if (users === null) {
@@ -90,6 +89,10 @@ class UserRepository {
         } catch {
             throw CustomError(500, 'saving parents')
         }
+    }
+
+    static async isDatabasesEmpty(){
+        return (await RedisModel.isDatabaseEmpty(0) && await RedisModel.isDatabaseEmpty(1))
     }
 }
 

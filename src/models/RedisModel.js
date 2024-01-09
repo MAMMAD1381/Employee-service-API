@@ -43,10 +43,12 @@ class RedisModel {
     static async getUser(id) {
         await this.#changeDBindex(0)
         try {
+            console.log(id)
             let user = await redis.hgetall(id)
             return user
         }
         catch (error) {
+            console.log(error.stack)
             throw new CustomError(500, 'redis: retrieving user failed')
         }
     }
@@ -122,7 +124,7 @@ class RedisModel {
         try {
             this.#changeDBindex(index)
             const dbSize = await redis.dbsize()
-            return dbSize
+            return dbSize === 0
         } catch (error) {
             throw new CustomError(500, 'redis: checking if database is empty failed')
         }
