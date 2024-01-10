@@ -1,6 +1,7 @@
 const createMiddleware = require('../helper/createMiddleware')
 const paramParser = require('../middleware/paramParser')
 const validation = require('../middleware/validation')
+const bodySchema = require('../schema/BodySchema')
 
 
 const routingRoutes = {
@@ -16,9 +17,9 @@ const paramParserMiddlewares = {
 }
 
 const validationMiddlewares = {
-    get: createMiddleware(validation, ['id'], []),
-    post: createMiddleware(validation, [], ['username', 'password', 'nationalID', 'jobSkill', 'jobTitle', 'name', 'family', 'gender', 'education']),
-    put: createMiddleware(validation, [], ['username', 'password', 'nationalID', 'jobSkill', 'jobTitle', 'name', 'family', 'gender', 'education'])
+    get: createMiddleware(validation, ['id'], bodySchema.get),
+    post: createMiddleware(validation, [], bodySchema.post),
+    put: createMiddleware(validation, [], bodySchema.put)
 }
 
 module.exports = {
