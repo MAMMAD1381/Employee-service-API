@@ -4,6 +4,7 @@ const Router = require('./Router')
 const paramParser = require('../middleware/paramParser')
 const bodyParser = require('../middleware/bodyParser')
 const createMiddleware = require('../helper/createMiddleware')
+const { routingRoutes, paramParserMiddlewares, validationMiddlewares } = require('../configs/dataServiceRoute.config')
 
 /**
  * route related to dataService
@@ -13,26 +14,21 @@ const createMiddleware = require('../helper/createMiddleware')
 const dataService = async (req, res) => {
     let router = new Router()
 
-    // routes
-    let routingRoute1 = '/dataService/:id'
-    let routingRoute2 = "/dataService"
-
-    // middleWares
-    let validationMiddleware1 = createMiddleware(validation, ['id'], [])
-    // let validationMiddleware2 = createMiddleware(validation, ['id'], ['username', 'password', 'nationalID', 'jobSkill', 'jobTitle', 'name', 'family', 'gender', 'education'])
-    let validationMiddleware3 = createMiddleware(validation, [], ['username', 'password', 'nationalID', 'jobSkill', 'jobTitle', 'name', 'family', 'gender', 'education'])
-    let paramParserMiddleware = createMiddleware(paramParser, routingRoute1)
-
     // routings
     router.routing(req, res)
-        .route(routingRoute1)
-        .get(paramParserMiddleware, validationMiddleware1, getUser)
-        
 
-    router.route(routingRoute2)
-        .post(bodyParser, validationMiddleware3, addUser)
-        .put(bodyParser, validationMiddleware3 ,updateUser)
-        
+    // get
+    router.route(routingRoutes.get)
+        .get(paramParserMiddlewares.get, validationMiddlewares.get, getUser)
+
+    // post
+    router.route(routingRoutes.post)
+        .post(bodyParser, validationMiddlewares.post, addUser)
+
+    // put
+    router.route(routingRoutes.put)
+        .put(bodyParser, validationMiddlewares.put, updateUser)
+
     router.exec()
 }
 
