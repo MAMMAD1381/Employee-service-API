@@ -1,7 +1,7 @@
 const Redis = require('ioredis')
-const redis = new Redis()
-const getKeys = require('../helper/searchDB');
-const CustomError = require('../utils/CustomError');
+// const redis = new Redis()
+let redis;
+const CustomError = require('../errors/CustomError');
 
 class RedisModel {
 
@@ -11,15 +11,13 @@ class RedisModel {
         }
     }
 
-
     static async addUser(id, data) {
         await this.#changeDBindex(0)
         try {
-            redis.hmset(id, data)
+            redis.hmset(`user:${id}`, data)
             return data
         }
         catch (error) {
-            console.log(error.stack)
             throw new CustomError(500, 'redis: inserting new user failed')
         }
 
@@ -29,13 +27,12 @@ class RedisModel {
         await this.#changeDBindex(0)
         try {
             for (const [key, value] of Object.entries(data)) {
-                await redis.hset(id, key, value)
+                await redis.hset(`user:${id}`, key, value)
             }
-            let updatedUser = redis.hgetall(id)
+            let updatedUser = redis.hgetall(`user:${id}`)
             return updatedUser
         }
         catch (error) {
-            console.log(error.stack)
             throw new CustomError(500, 'redis: updating user failed')
         }
     }
@@ -43,19 +40,18 @@ class RedisModel {
     static async getUser(id) {
         await this.#changeDBindex(0)
         try {
-            return (await redis.exists(id) ? await redis.hgetall(id) : undefined)
+            return (await redis.exists(`user:${id}`) ? await redis.hgetall(`user:${id}`) : undefined)
         }
         catch (error) {
-            console.log(error.stack)
             throw new CustomError(500, 'redis: retrieving user failed')
         }
     }
 
     static async getUsers() {
         await this.#changeDBindex(0)
-        const pattern = '*';
+        const pattern = 'user:';
         try {
-            const keys = await getKeys(pattern, redis)
+            const keys = await this.getKeys(pattern)
             const userPromises = keys.map(key => redis.hgetall(key)); // Assuming user data is stored in hashes
             const allUsers = await Promise.all(userPromises);
             return allUsers
@@ -69,11 +65,10 @@ class RedisModel {
     static async addParent(id, parentID) {
         await this.#changeDBindex(1)
         try {
-            await redis.set(id, parentID)
+            await redis.set(`parent:${id}`, parentID)
             return { id: parentID }
         }
         catch (error) {
-            console.log(error.stack)
             throw new CustomError(500, 'redis: inserting new parentID failed')
         }
     }
@@ -81,11 +76,10 @@ class RedisModel {
     static async updateParent(id, parentID) {
         await this.#changeDBindex(1)
         try {
-            await redis.set(id, parentID)
+            await redis.set(`parent:${id}`, parentID)
             return { id: parentID }
         }
         catch (error) {
-            console.log(error.stack)
             throw new CustomError(500, 'redis: updating parentID failed')
         }
     }
@@ -93,7 +87,7 @@ class RedisModel {
     static async getParent(id) {
         await this.#changeDBindex(1)
         try {
-            let parent = await redis.get(id)
+            let parent = await redis.get(`parent:${id}`)
             return parent
         }
 
@@ -104,15 +98,14 @@ class RedisModel {
 
     static async getParents() {
         await this.#changeDBindex(1)
-        const pattern = '*';
+        const pattern = 'parent:*';
         try {
-            const keys = await getKeys(pattern, redis)
+            const keys = await this.getKeys(pattern)
             const userPromises = keys.map(key => redis.get(key));
             const parents = await Promise.all(userPromises);
             return parents
         }
         catch (error) {
-            console.log(error.stack)
             throw new CustomError(500, 'redis: retrieving all users failed')
         }
     }
@@ -126,6 +119,40 @@ class RedisModel {
             throw new CustomError(500, 'redis: checking if database is empty failed')
         }
     }
+
+    static async getKeys(pattern) {
+        const keys = [];
+        let cursor = '0';
+        try {
+            do {
+                const result = await redis.scan(cursor, 'MATCH', pattern);
+                cursor = result[0];
+                keys.push(...result[1]);
+            } while (cursor !== '0');
+
+            return keys
+        }
+        catch (error) {
+            throw new CustomError(500, 'redis: retrieving all users failed')
+        }
+    }
+
+    static async connectDB() {
+        redis = await new Redis({
+            host: 'localhost',
+            port: 6379,
+            maxRetriesPerRequest: 3
+        });
+        redis.on('connect', () => {
+            console.log('connected to redis')
+        })
+
+        redis.on('error', async(error) => {
+            // console.log('connection to redis failed')
+        })
+    }
 }
+
+
 
 module.exports = RedisModel

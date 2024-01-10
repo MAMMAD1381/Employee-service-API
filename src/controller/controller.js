@@ -1,6 +1,6 @@
 const UserService = require('../services/UserService')
 const commonResponse = require('../utils/commonResponse')
-const CustomError = require('../utils/CustomError')
+
 
 /**
  * adds user using User model
@@ -8,14 +8,8 @@ const CustomError = require('../utils/CustomError')
  * @param {Response} response 
  */
 const addUser = async (request, response) => {
-    try{
-        await UserService.create(request.body)
-        commonResponse(response, {message: 'user saved'}, 201)
-    }
-    catch(error){
-        console.log(error.stack)
-        throw new CustomError(500, 'failed creating user:' + error.message)
-    }
+    await UserService.create(request.body)
+    commonResponse(response, { message: 'user saved' }, 201)
 }
 
 /**
@@ -24,14 +18,8 @@ const addUser = async (request, response) => {
  * @param {Response} response 
  */
 const updateUser = async (request, response) => {
-    try{
-        await UserService.update(request.body)
-        commonResponse(response, {message: 'user updated'}, 200)
-    }
-    catch(error){
-        console.log(error.stack)
-        throw new CustomError(500, 'failed updating user:' + error.message)
-    }
+    await UserService.update(request.body)
+    commonResponse(response, { message: 'user updated' }, 200)
 }
 
 /**
@@ -41,13 +29,8 @@ const updateUser = async (request, response) => {
  * @returns 
  */
 const getUser = async (request, response) => {
-    try{
-        const user = await UserService.get(request.params.id)
-        commonResponse(response, {user}, 200)
-    }
-    catch(error){
-        throw new CustomError(500, 'failed fetching user:' + error.message)
-    }
+    const user = await UserService.get(request.params.id)
+    commonResponse(response, { user }, 200)
 }
 
 module.exports = { addUser, updateUser, getUser }

@@ -1,26 +1,29 @@
-class CustomError extends Error{
-    constructor(statusCode, additionalMessage=''){
+class CustomError extends Error {
+    constructor(statusCode, userMessage) {
         let message
-        if(statusCode === 200)
+        if (statusCode === 200)
             message = 'successful request'
-        else if(statusCode === 201)
+        else if (statusCode === 201)
             message = 'successful creation of resource'
-        else if(statusCode === 400)
+        else if (statusCode === 400)
             message = 'bad request'
-        else if(statusCode === 403)
+        else if (statusCode === 403)
             message = 'not authorized'
-        else if(statusCode === 404)
+        else if (statusCode === 404)
             message = 'resource not found'
-        else if(statusCode === 500)
+        else if (statusCode === 500)
             message = 'server error'
-        else{
+        else {
             statusCode = 500
             message = 'server error'
         }
-        super(`${message}: ${additionalMessage}`)
+        
+        if (userMessage)
+            super(userMessage)
+        else
+            super(message)
         this.statusCode = statusCode
     }
-
 }
 
 module.exports = CustomError

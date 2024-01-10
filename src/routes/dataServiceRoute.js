@@ -1,10 +1,8 @@
-const validation = require('../middleware/validation')
 const { addUser, updateUser, getUser } = require('../controller/controller')
 const Router = require('./Router')
-const paramParser = require('../middleware/paramParser')
 const bodyParser = require('../middleware/bodyParser')
-const createMiddleware = require('../helper/createMiddleware')
 const { routingRoutes, paramParserMiddlewares, validationMiddlewares } = require('../configs/dataServiceRoute.config')
+const customErrorHandler = require('../errors/customErrorHandler')
 
 /**
  * route related to dataService
@@ -29,7 +27,7 @@ const dataService = async (req, res) => {
     router.route(routingRoutes.put)
         .put(bodyParser, validationMiddlewares.put, updateUser)
 
-    router.exec()
+    router.exec(customErrorHandler)
 }
 
 module.exports = dataService

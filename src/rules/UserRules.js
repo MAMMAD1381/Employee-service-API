@@ -1,5 +1,5 @@
 const UserRepository = require('../repositories/UserRepository')
-const CustomError = require('../utils/CustomError')
+const CustomError = require('../errors/CustomError')
 
 class UserRules {
 

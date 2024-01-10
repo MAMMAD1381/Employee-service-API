@@ -20,8 +20,13 @@ class UserRepository {
 
     static async getUser(id){
         const user = await RedisModel.getUser(id)
-        user['parent'] = await RedisModel.getParent(id)
         return user
+    }
+
+    
+    static async getParent(id){
+        const parent = await RedisModel.getParent(id)        
+        return parent
     }
 
     static async isDatabasesEmpty(){

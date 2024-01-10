@@ -1,4 +1,4 @@
-const CustomError = require("../utils/CustomError")
+const CustomError = require("../errors/CustomError")
 const Validator = require("../utils/Validator")
 
 // TODO we don't have optional fields

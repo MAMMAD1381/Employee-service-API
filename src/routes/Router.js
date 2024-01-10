@@ -1,4 +1,4 @@
-const CustomError = require("../utils/CustomError")
+const CustomError = require("../errors/CustomError")
 
 class Router {
   /**
@@ -67,28 +67,17 @@ class Router {
   /**
    * a method which should be called at last for execution of routes
    */
-  async exec(){
+  async exec(errorHandler){
     try{
       const executionBuffer = []
       for(let method in this.handlers){
         this.#setRegex(this.handlers[method].path)
-        // await this.#execMethod(method, this.handlers[method].args)
         executionBuffer.push(this.#execMethod(method, this.handlers[method].args))
       }
       await Promise.all(executionBuffer)
     }
     catch(error){
-      console.log(error.stack)
-      this.response.setHeader('Content-Type', 'application/json')
-      if(error instanceof CustomError){
-        this.response.statusCode = error.statusCode
-        this.response.end(JSON.stringify({error: error.message}));
-      }
-      else {
-        this.response.statusCode = 500
-        this.response.end(JSON.stringify({error: 'server error'}));
-      }
-      return
+      errorHandler ? errorHandler(error, this.response) : null
     }
     await this.#end()
   }
