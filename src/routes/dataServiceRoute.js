@@ -19,7 +19,7 @@ const dataService = async (req, res) => {
 
     // middleWares
     let validationMiddleware1 = createMiddleware(validation, ['id'], [])
-    let validationMiddleware2 = createMiddleware(validation, ['id'], ['username', 'password', 'nationalID', 'jobSkill', 'jobTitle', 'name', 'family', 'gender', 'education'])
+    // let validationMiddleware2 = createMiddleware(validation, ['id'], ['username', 'password', 'nationalID', 'jobSkill', 'jobTitle', 'name', 'family', 'gender', 'education'])
     let validationMiddleware3 = createMiddleware(validation, [], ['username', 'password', 'nationalID', 'jobSkill', 'jobTitle', 'name', 'family', 'gender', 'education'])
     let paramParserMiddleware = createMiddleware(paramParser, routingRoute1)
 
@@ -27,10 +27,11 @@ const dataService = async (req, res) => {
     router.routing(req, res)
         .route(routingRoute1)
         .get(paramParserMiddleware, validationMiddleware1, getUser)
-        .put(paramParserMiddleware, bodyParser, validationMiddleware2 ,updateUser)
+        
 
     router.route(routingRoute2)
         .post(bodyParser, validationMiddleware3, addUser)
+        .put(bodyParser, validationMiddleware3 ,updateUser)
         
     router.exec()
 }

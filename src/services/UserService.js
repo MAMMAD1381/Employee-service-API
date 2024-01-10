@@ -1,66 +1,38 @@
 // services/UserService.js
 const CustomError = require('../utils/CustomError');
 const UserRepository = require('../repositories/UserRepository');
+const UserRules = require('../rules/UserRules')
+
 
 class UserService {
-  static async create(Data) {
-    const { id, data, parentID } = Data;
-    // const isMaster = (await UserRepository.isDatabasesEmpty() && parentID === id);
+  static async create(body) {
+    const { id, data, parentID } = body;
 
-    // const user = await UserRepository.getUser(id)
-    // const parent = await UserRepository.getUser(parentID)
-    // console.log(parent, user)
+    await UserRules.creation(id, parentID)
 
-    // if (!parent && !isMaster)
-    //   throw new CustomError(400, `parentID doesn't exists`)
-
-    // if (user && !isMaster)
-    //   throw new CustomError(400, 'userID already exists')
-    // try {
-      userCreationRules(id, parentID)
-    // }
-    // catch (error) {
-    //   console.log(error.stack)
-    //   throw error
-    // }
-
-    const newUser = await UserRepository.createUser(id, data, parentID)
+    const newUser = await UserRepository.createUser(id,data,parentID)
 
     return newUser
   }
 
-  static async update(id, Data, parentID) {
-    // const {data, parentID } = Data;
+  static async update(body) {
+    const {id, data, parentID } = body;
 
-    const newUser = await UserRepository.updateUser(id, { ...data, parentID })
+    await UserRules.updating(id, parentID)
 
-    return newUser
+    const updatedUser = await UserRepository.updateUser(id, data, parentID)
+
+    return updatedUser
   }
 
   static async get(id) {
     const user = await UserRepository.getUser(id)
 
-    if (user === undefined)
-      throw new CustomError(404, 'user id')
+    if (!user)
+        throw new CustomError(404, 'userId not found')
 
-    user.password = undefined
     return user
   }
 }
 
 module.exports = UserService;
-
-const userCreationRules = async (id, parentID) => {
-  const isMaster = (await UserRepository.isDatabasesEmpty() && parentID === id);
-
-  const user = await UserRepository.getUser(id)
-  const parent = await UserRepository.getUser(parentID)
-  console.log(parent, user)
-
-  if ((!parent || Object.keys(parent).length === 0) && !isMaster)
-    throw new CustomError(400, `parentID doesn't exists`)
-
-  if ((user || Object.keys(user).length !== 0) && !isMaster)
-    throw new CustomError(400, 'userID already exists')
-
-}

@@ -25,10 +25,11 @@ const addUser = async (request, response) => {
  */
 const updateUser = async (request, response) => {
     try{
-        await UserService.update(request.params.id, request.body)
+        await UserService.update(request.body)
         commonResponse(response, {message: 'user updated'}, 200)
     }
     catch(error){
+        console.log(error.stack)
         throw new CustomError(500, 'failed updating user:' + error.message)
     }
 }

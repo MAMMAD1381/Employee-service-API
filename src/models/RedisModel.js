@@ -29,7 +29,7 @@ class RedisModel {
         await this.#changeDBindex(0)
         try {
             for (const [key, value] of Object.entries(data)) {
-                redis.hset(id, key, value)
+                await redis.hset(id, key, value)
             }
             let updatedUser = redis.hgetall(id)
             return updatedUser
@@ -43,9 +43,7 @@ class RedisModel {
     static async getUser(id) {
         await this.#changeDBindex(0)
         try {
-            console.log(id)
-            let user = await redis.hgetall(id)
-            return user
+            return (await redis.exists(id) ? await redis.hgetall(id) : undefined)
         }
         catch (error) {
             console.log(error.stack)
@@ -96,7 +94,6 @@ class RedisModel {
         await this.#changeDBindex(1)
         try {
             let parent = await redis.get(id)
-            console.log(parent)
             return parent
         }
 
