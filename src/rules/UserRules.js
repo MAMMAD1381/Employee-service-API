@@ -10,7 +10,7 @@ class UserRules {
         if ((!parent) && !isMaster)
             throw new CustomError(400, `parentID doesn't exists`)
 
-        if ((user) && !isMaster)
+        if ((Object.keys(user).length) && !isMaster)
             throw new CustomError(400, 'userID already exists')
     }
 

@@ -23,7 +23,8 @@ const validation = async (paramsName, bodySchema, request, response) => {
         }
 
     // body validation
-    validationBody(bodySchema, request.body)
+    if(Object.keys(bodySchema).length)
+        validationBody(bodySchema, request.body)
 
 
 

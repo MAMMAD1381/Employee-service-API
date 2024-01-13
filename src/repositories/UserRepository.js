@@ -19,6 +19,8 @@ class UserRepository {
     }
 
     static async getUser(id){
+        const users = await RedisModel.getParents()
+        console.log(users)
         const user = await RedisModel.getUser(id)
         return user
     }

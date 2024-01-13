@@ -1,123 +1,64 @@
 const Redis = require('ioredis')
-// const redis = new Redis()
 let redis;
 const CustomError = require('../errors/CustomError');
 
 class RedisModel {
 
-    static async #changeDBindex(index) {
-        if (index < 16 && index >= 0) {
-            await redis.select(index)
-        }
-    }
-
     static async addUser(id, data) {
-        await this.#changeDBindex(0)
-        try {
-            redis.hmset(`user:${id}`, data)
-            return data
-        }
-        catch (error) {
-            throw new CustomError(500, 'redis: inserting new user failed')
-        }
-
+        await redis.select(0)
+        await this.#tryCatchWrapper('hmset', 'redis: inserting new user failed', `user:${id}`, data)
+        return data
     }
 
     static async updateUser(id, data) {
-        await this.#changeDBindex(0)
-        try {
-            for (const [key, value] of Object.entries(data)) {
-                await redis.hset(`user:${id}`, key, value)
-            }
-            let updatedUser = redis.hgetall(`user:${id}`)
-            return updatedUser
+        await redis.select(0)
+        for (const [key, value] of Object.entries(data)) {
+            await this.#tryCatchWrapper('hset', 'redis: updating user failed', `user:${id}`, key, value)
         }
-        catch (error) {
-            throw new CustomError(500, 'redis: updating user failed')
-        }
+        return await this.#tryCatchWrapper('hgetall', 'redis: returning updated user failed', `user:${id}`)
     }
 
     static async getUser(id) {
-        await this.#changeDBindex(0)
-        try {
-            return (await redis.exists(`user:${id}`) ? await redis.hgetall(`user:${id}`) : undefined)
-        }
-        catch (error) {
-            throw new CustomError(500, 'redis: retrieving user failed')
-        }
+        await redis.select(0)
+        return await this.#tryCatchWrapper('hgetall', 'redis: retrieving user failed', `user:${id}`)
     }
 
     static async getUsers() {
-        await this.#changeDBindex(0)
-        const pattern = 'user:';
-        try {
-            const keys = await this.getKeys(pattern)
-            const userPromises = keys.map(key => redis.hgetall(key)); // Assuming user data is stored in hashes
-            const allUsers = await Promise.all(userPromises);
-            return allUsers
-        }
-        catch (error) {
-            throw new CustomError(500, 'redis: retrieving all users failed')
-        }
-
+        await redis.select(0)
+        const pattern = 'user:*';
+        const keys = await this.getKeys(pattern)
+        const userPromises = keys.map(async (key) => await this.#tryCatchWrapper('hgetall', 'redis: retrieving all users failed', key));
+        return await Promise.all(userPromises);
     }
 
     static async addParent(id, parentID) {
-        await this.#changeDBindex(1)
-        try {
-            await redis.set(`parent:${id}`, parentID)
-            return { id: parentID }
-        }
-        catch (error) {
-            throw new CustomError(500, 'redis: inserting new parentID failed')
-        }
+        await redis.select(1)
+        await this.#tryCatchWrapper('set', 'redis: inserting new parentID failed', `parent:${id}`, parentID)
+        return { id: parentID }
     }
 
     static async updateParent(id, parentID) {
-        await this.#changeDBindex(1)
-        try {
-            await redis.set(`parent:${id}`, parentID)
-            return { id: parentID }
-        }
-        catch (error) {
-            throw new CustomError(500, 'redis: updating parentID failed')
-        }
+        await redis.select(1)
+        await this.#tryCatchWrapper('set', 'redis: updating parentID failed', `parent:${id}`, parentID)
+        return { id: parentID }
     }
 
     static async getParent(id) {
-        await this.#changeDBindex(1)
-        try {
-            let parent = await redis.get(`parent:${id}`)
-            return parent
-        }
-
-        catch (error) {
-            throw new CustomError(500, 'redis: retrieving parentID failed')
-        }
+        await redis.select(1)
+        return await this.#tryCatchWrapper('get', 'redis: retrieving parentID failed', `parent:${id}`)
     }
 
     static async getParents() {
-        await this.#changeDBindex(1)
+        await redis.select(1)
         const pattern = 'parent:*';
-        try {
-            const keys = await this.getKeys(pattern)
-            const userPromises = keys.map(key => redis.get(key));
-            const parents = await Promise.all(userPromises);
-            return parents
-        }
-        catch (error) {
-            throw new CustomError(500, 'redis: retrieving all users failed')
-        }
+        const keys = await this.getKeys(pattern)
+        const userPromises = keys.map(async(key) => await this.#tryCatchWrapper('get', 'redis: retrieving all users failed', key));
+        return await Promise.all(userPromises);
     }
 
     static async isDatabaseEmpty(index) {
-        try {
-            this.#changeDBindex(index)
-            const dbSize = await redis.dbsize()
-            return dbSize === 0
-        } catch (error) {
-            throw new CustomError(500, 'redis: checking if database is empty failed')
-        }
+        await redis.select(index)
+        return (await this.#tryCatchWrapper('dbsize', 'redis: checking if database is empty failed') === 0 )
     }
 
     static async getKeys(pattern) {
@@ -147,9 +88,17 @@ class RedisModel {
             console.log('connected to redis')
         })
 
-        redis.on('error', async(error) => {
+        redis.on('error', async (error) => {
             // console.log('connection to redis failed')
         })
+    }
+
+    static async #tryCatchWrapper(operation, message, ...params) {
+        try {
+            return await redis[operation](...params);
+        } catch (error) {
+            throw new CustomError(500, message);
+        }
     }
 }
 

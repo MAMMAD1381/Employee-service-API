@@ -17,7 +17,7 @@ const bodyParser = async (request, response) => {
         });
 
         request.on('error', (error) => {
-            reject(new CustomError('error streaming request data', 500));
+            reject(new CustomError('error parsing body data', 500));
         });
     });
 }

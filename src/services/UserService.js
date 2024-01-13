@@ -34,7 +34,7 @@ class UserService {
   static async get(id) {
     const user = await UserRepository.getUser(id)
 
-    if (!user)
+    if (!user || Object.keys(user).length === 0)
         throw new CustomError(404, 'userId not found')
 
     user['parent'] = await UserRepository.getParent(id)
