@@ -24,7 +24,6 @@ class UserRepository {
         return user
     }
 
-    
     static async getParent(id){
         const parent = await RedisModel.getParent(id)        
         return parent

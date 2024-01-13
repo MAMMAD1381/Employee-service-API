@@ -25,15 +25,6 @@ class UserRules {
             throw new CustomError(404, `newParentID not found`)
     }
 
-    static async retrieving(id) {
-        const user = await UserRepository.getUser(id)
-
-        if (!user)
-            throw new CustomError(404, 'userId not found')
-
-        return user
-    }
-
 }
 
 

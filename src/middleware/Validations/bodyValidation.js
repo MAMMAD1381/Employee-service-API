@@ -7,7 +7,7 @@ const bodyValidation = async (bodySchema, request, response) => {
 }
 
 const validationBody = (bodySchema, body) => {
-    if (body == undefined)
+    if (body === undefined)
         throw new CustomError(400, 'body was not included')
 
     Object.entries(bodySchema).forEach(([key, value]) => {

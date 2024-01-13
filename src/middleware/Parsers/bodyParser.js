@@ -12,7 +12,7 @@ const bodyParser = async (request, response) => {
                 request.body = parsedBody
                 resolve(parsedBody);
             } catch (error) {
-                resolve({});
+                resolve(undefined);
             }
         });
 
