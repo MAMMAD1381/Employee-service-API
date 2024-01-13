@@ -10,10 +10,7 @@ const customErrorHandler = require('../errors/customErrorHandler')
  * @param {Response} res 
  */
 const dataService = async (req, res) => {
-    let router = new Router()
-
-    // routings
-    router.routing(req, res)
+    let router = new Router(req, res)
 
     // get
     router

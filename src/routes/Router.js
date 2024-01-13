@@ -4,22 +4,11 @@ class Router {
   /**
    * defining all global variables
    */
-  constructor() {
-    this.request
-    this.response
-    this.path
-    this.handlers = {}
-  }
-
-  /**
-   * 
-   * @param {Request} request 
-   * @param {Response} response 
-   * @returns {ThisType} this - return current object for chainablity purposes
-   */
-  routing(request, response) {
+  constructor(request, response) {
     this.request = request
     this.response = response
+    this.path
+    this.handlers = {}
     return this
   }
 

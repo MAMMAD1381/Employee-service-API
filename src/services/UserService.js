@@ -23,8 +23,10 @@ class UserService {
 
     await UserRules.updating(id, parentID)
 
-    const {salt, hash} = Password.encryptPassword(data.password)
-    data.password = `${salt}:${hash}`
+    if(data.password){
+      const {salt, hash} = Password.encryptPassword(data.password)
+      data.password = `${salt}:${hash}`
+    }
     
     const updatedUser = await UserRepository.updateUser(id, data, parentID)
 
