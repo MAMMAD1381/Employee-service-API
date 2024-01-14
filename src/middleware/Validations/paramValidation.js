@@ -1,6 +1,6 @@
 const CustomError = require("../../errors/CustomError")
 
-const paramValidation = async (paramSchema, request, response) => {
+const paramValidation = (paramSchema) => async (request, response) => {
     const params = request.params
     if (params === undefined && Object.keys(paramSchema).length !== 0)
         throw new CustomError(400, 'params were not included')
@@ -12,6 +12,6 @@ const paramValidation = async (paramSchema, request, response) => {
         if (!value['toMatch'].test(params[key]) && value['required'])
             throw new CustomError(400, `the ${key} in params was not formatted right`)
     });
-}
+  };
 
 module.exports = paramValidation

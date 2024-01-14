@@ -1,9 +1,10 @@
 const { addUser, updateUser, getUser } = require('../controller/controller')
 const Router = require('./Router')
 const bodyParser = require('../middleware/Parsers/bodyParser')
-const { routingRoutes, paramParserMiddlewares, paramValidationMiddlewares, bodyValidationMiddlewares } = require('../configs/dataServiceRoute.config')
+const routingRoutes = require('../configs/routingRoutes')
 const customErrorHandler = require('../errors/customErrorHandler')
-
+const middlewares = require('../middleware/middlewares')
+const schema = require('../schema/schema')
 /**
  * route related to dataService
  * @param {Request} req 
@@ -15,17 +16,17 @@ const dataService = async (req, res) => {
     // get
     router
         .route(routingRoutes.get)
-        .get(paramParserMiddlewares.get, paramValidationMiddlewares.get, getUser)
+        .get(middlewares.parsers.param(routingRoutes.get), middlewares.validations.param(schema.param.get), getUser)
 
     // post
     router
         .route(routingRoutes.post)
-        .post(bodyParser, bodyValidationMiddlewares.post, addUser)
+        .post(bodyParser, middlewares.validations.body(schema.body.post), addUser)
 
     // put
     router
         .route(routingRoutes.put)
-        .put(bodyParser, bodyValidationMiddlewares.put, updateUser)
+        .put(bodyParser, middlewares.validations.body(schema.body.put), updateUser)
 
     router.exec(customErrorHandler)
 }

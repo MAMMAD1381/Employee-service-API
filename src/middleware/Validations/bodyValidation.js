@@ -1,7 +1,6 @@
 const CustomError = require("../../errors/CustomError")
 
-
-const bodyValidation = async (bodySchema, request, response) => {
+const bodyValidation = (bodySchema) => async(request, response) => {
     if (Object.keys(bodySchema).length)
         validationBody(bodySchema, request.body)
 }
