@@ -1,5 +1,3 @@
-const CustomError = require("../errors/CustomError")
-
 class Router {
   /**
    * defining all global variables

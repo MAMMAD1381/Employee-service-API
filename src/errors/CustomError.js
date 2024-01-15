@@ -1,3 +1,9 @@
+
+/**
+ * a class that can create Custom Errors with desired statusCode and message
+ * @param {Number} statusCode status code for desired error
+ * @param {String} userMessage an optional message, if not provided will be replaced by a predefined message
+ */
 class CustomError extends Error {
     constructor(statusCode, userMessage) {
         let message

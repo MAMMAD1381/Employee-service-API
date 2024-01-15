@@ -1,3 +1,14 @@
+/**
+ * a middleware for parsing body of request
+ * it will append the parsedBody to request as request.body
+ * @param {Request} request 
+ * @param {Response} response 
+ * 
+ * @example
+ * const router = new Router(request, response)
+ * router.route('/send').post(bodyParser, sendController)
+ * // other routings
+ */
 const bodyParser = async (request, response) => {
     return new Promise((resolve, reject) => {
         let body = '';

@@ -1,36 +1,51 @@
+const customErrorHandler = require('../errors/customErrorHandler')
 const UserService = require('../services/UserService')
 const commonResponse = require('../utils/commonResponse')
 
 
 /**
- * adds user using User model
+ * controller for adding new users
  * @param {Request} request
  * @param {Response} response 
  */
 const addUser = async (request, response) => {
-    await UserService.create(request.body)
-    commonResponse(response, { message: 'user saved' }, 201)
+    try {
+        await UserService.create(request.body)
+        commonResponse(response, { message: 'user saved' }, 201)
+    }
+    catch (error) {
+        await customErrorHandler(error, response)
+    }
 }
 
 /**
- * updates a user with give id using User model
+ * controller for updating users
  * @param {Request} request 
  * @param {Response} response 
  */
 const updateUser = async (request, response) => {
-    await UserService.update(request.body)
-    commonResponse(response, { message: 'user updated' }, 200)
+    try {
+        await UserService.update(request.body)
+        commonResponse(response, { message: 'user updated' }, 200)
+    }
+    catch (error) {
+        await customErrorHandler(error, response)
+    }
+
 }
 
 /**
  * returns the user associated to given id
  * @param {Request} request 
  * @param {Response} response 
- * @returns 
  */
 const getUser = async (request, response) => {
-    const user = await UserService.get(request.params.id)
-    commonResponse(response, { user }, 200)
+    try {
+        const user = await UserService.get(request.params.id)
+        commonResponse(response, { user }, 200)
+    }
+    catch (error) {
+        await customErrorHandler(error, response)
+    }
 }
-
 module.exports = { addUser, updateUser, getUser }

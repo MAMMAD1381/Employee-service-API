@@ -1,3 +1,13 @@
+/**
+ * a middleware that returns extracted params from request url, based on given path template
+ * it will append the params to request as request.params
+ * @param {String} path - example => "users/:id"
+ * @returns {object} example => {id: 12345}
+ * @example
+ * const router = new Router(request, response)
+ * router.route('users/:id').get(paramParser('users/:id'), ...controllers and middlewares)
+ * // other routing codes
+ */
 const paramParser = (path) => async(request, response)=>{
   const placeholderPattern = /:(\w+)/g;
   const matches = []

@@ -1,5 +1,18 @@
 const CustomError = require("../../errors/CustomError")
 
+/**
+ * a middleware that is responsible for validation of params
+ * if there is no error it will pass to next middlewares
+ * @param {object} paramSchema 
+ * @example
+ * const paramSchema = {
+ *      id: {
+ *          toMatch: /regex/,
+ *          required: true        
+ *      }
+ * }
+ * router.route('somePath').get(..., paramValidation(paramSchema), ...)
+ */
 const paramValidation = (paramSchema) => async (request, response) => {
     const params = request.params
     if (params === undefined && Object.keys(paramSchema).length !== 0)

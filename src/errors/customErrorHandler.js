@@ -1,6 +1,18 @@
 const CustomError = require("./CustomError")
 
-
+/**
+ * a custom error handler designed for Router
+ * 
+ * @param {Error} error 
+ * @param {Response} response 
+ * 
+ * @example
+ * const router = new Router(request, response)
+ * 
+ * // other routing codes
+ * 
+ * router.exec(customErrorHandler)
+ */
 const customErrorHandler = async(error, response)=>{
     console.log(error.stack)
     response.setHeader('Content-Type', 'application/json')

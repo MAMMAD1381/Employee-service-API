@@ -2,8 +2,17 @@ const Redis = require('ioredis')
 let redis;
 const CustomError = require('../errors/CustomError');
 
+/**
+ * A class that allows direct interaction to redis
+ */
 class RedisModel {
 
+    /**
+     * adds a new user
+     * @param {*} id 
+     * @param {*} data 
+     * @returns 
+     */
     static async addUser(id, data) {
         await redis.select(0)
         await this.#tryCatchWrapper('hmset', 'redis: inserting new user failed', `user:${id}`, data)
