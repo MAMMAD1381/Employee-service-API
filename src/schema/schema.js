@@ -7,7 +7,8 @@ const schema = {
     param:{
         post: require('./ParamSchemas/postRouteParamSchema'),
         put: require('./ParamSchemas/putRouteParamSchema'),
-        get: require('./ParamSchemas/getRouteParamSchema')
+        get: require('./ParamSchemas/getRouteParamSchema'),
+        delete: require('./ParamSchemas/deleteRouteParamSchema')
     }
 }
 

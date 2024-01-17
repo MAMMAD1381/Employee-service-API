@@ -29,6 +29,14 @@ class UserRepository {
         return parent
     }
 
+    static async deleteUser(id){
+        return await RedisModel.deleteUser(id)
+    }
+
+    static async deleteParent(id){
+        return await RedisModel.deleteParent(id)
+    }
+
     static async isDatabasesEmpty(){
         return (await RedisModel.isDatabaseEmpty(0) && await RedisModel.isDatabaseEmpty(1))
     }

@@ -1,4 +1,4 @@
-const { addUser, updateUser, getUser } = require('../controller/controller')
+const { addUser, updateUser, getUser, deleteUser } = require('../controller/controller')
 const Router = require('./Router')
 const customErrorHandler = require('../errors/customErrorHandler')
 const schema = require('../schema/schema')
@@ -32,13 +32,18 @@ const dataService = async (req, res) => {
         .route(routingRoutes.put)
         .put(bodyParser, bodyValidation(schema.body.put), updateUser)
 
+    router
+        .route(routingRoutes.delete)
+        .delete(paramParser(routingRoutes.delete), paramValidation(schema.param.delete), deleteUser)
+
     router.exec(customErrorHandler)
 }
 
 const routingRoutes = {
     get: '/dataService/:id',
     post: '/dataService',
-    put: '/dataService'
+    put: '/dataService',
+    delete: '/dataService/:id'
 }
 
 

@@ -48,4 +48,14 @@ const getUser = async (request, response) => {
         await customErrorHandler(error, response)
     }
 }
-module.exports = { addUser, updateUser, getUser }
+
+const deleteUser = async (request, response) => {
+    try {
+        await UserService.delete(request.params.id)
+        commonResponse(response, { message: 'user deleted successfully' }, 200)
+    }
+    catch (error) {
+        await customErrorHandler(error, response)
+    }
+}
+module.exports = { addUser, updateUser, getUser, deleteUser }

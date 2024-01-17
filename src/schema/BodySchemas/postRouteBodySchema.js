@@ -12,24 +12,27 @@ const postRouteBodySchema = {
         },
         password: {
             toMatch: Regex.password,
-            required: true
+            // required: true
         },
         nationalID: {
             toMatch: Regex.nationalID,
+            required: true
         },
         jobSkill:{
             toMatch: Regex.jobSkill,
+            required: true
         },
         jobTitle:{
             toMatch: Regex.jobTitle,
+            required: true
         },
         name:{
             toMatch: Regex.name,
-            required: true
+            // required: true
         },
         family:{
             toMatch: Regex.family,
-            required: true
+            // required: true
         },
         gender:{
             toMatch: Regex.gender,
@@ -39,11 +42,11 @@ const postRouteBodySchema = {
         },
         email:{
             toMatch: Regex.email,
-            required: true
+            // required: true
         },
         phone:{
             toMatch: Regex.phone,
-            required: true
+            // required: true
         },
 
     },

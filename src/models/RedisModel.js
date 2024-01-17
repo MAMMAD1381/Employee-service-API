@@ -40,6 +40,11 @@ class RedisModel {
         return await Promise.all(userPromises);
     }
 
+    static async deleteUser(id){
+        await redis.select(0)
+        return await this.#tryCatchWrapper('del', 'deleting user failed', `user:${id}`)
+    }
+
     static async addParent(id, parentID) {
         await redis.select(1)
         await this.#tryCatchWrapper('set', 'redis: inserting new parentID failed', `parent:${id}`, parentID)
@@ -63,6 +68,11 @@ class RedisModel {
         const keys = await this.getKeys(pattern)
         const userPromises = keys.map(async(key) => await this.#tryCatchWrapper('get', 'redis: retrieving all users failed', key));
         return await Promise.all(userPromises);
+    }
+
+    static async deleteParent(id){
+        await redis.select(1)
+        return await this.#tryCatchWrapper('del', 'deleting user failed', `parent:${id}`)
     }
 
     static async isDatabaseEmpty(index) {

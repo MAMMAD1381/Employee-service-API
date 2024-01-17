@@ -9,8 +9,10 @@ class UserService {
 
     await rules(id, parentID, 'create')
 
-    const { salt, hash } = Password.encryptPassword(data.password)
-    data.password = `${salt}:${hash}`
+    if(data.password){
+      const { salt, hash } = Password.encryptPassword(data.password)
+      data.password = `${salt}:${hash}`
+    }
 
     const newUser = await UserRepository.createUser(id, data, parentID)
 
@@ -43,22 +45,43 @@ class UserService {
 
     return user
   }
+
+  static async delete(id){
+    const user = await UserRepository.getUser(id)
+
+    if (!user || Object.keys(user).length === 0)
+      throw new CustomError(404, 'userId not found')
+
+    await UserRepository.deleteUser(id)
+    await UserRepository.deleteParent(id)
+
+    return user
+  }
 }
 
-const rules = async(id, parentID, operation) => {
+const rules = async (id, parentID, operation) => {
   const user = await UserRepository.getUser(id)
   const parent = await UserRepository.getUser(parentID)
 
   switch (operation) {
     case 'create':
-      const isMaster = (await UserRepository.isDatabasesEmpty() && parentID === id);
+      const isMaster = (parentID === id);
 
+      if(isMaster) break
       if (Object.keys(parent).length === 0 && !isMaster)
         throw new CustomError(400, `parentID doesn't exists`)
 
       if (Object.keys(user).length !== 0 && !isMaster)
         throw new CustomError(400, 'userID already exists')
       break
+    // const isMaster = (await UserRepository.isDatabasesEmpty() && parentID === id);
+
+    // if (Object.keys(parent).length === 0 && !isMaster)
+    //   throw new CustomError(400, `parentID doesn't exists`)
+
+    // if (Object.keys(user).length !== 0 && !isMaster)
+    //   throw new CustomError(400, 'userID already exists')
+    // break
 
     case 'update':
       if (Object.keys(user).length === 0)
