@@ -1,5 +1,5 @@
 const Regex = {
-    id: /^\d{5}$/,
+    id: /^\d{10}$/,
     username: /^[a-zA-Z0-9_-]{3,16}$/,
     password: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
     nationalID: /^[a-zA-Z0-9]{6,}$/,
