@@ -66,13 +66,19 @@ const rules = async (id, parentID, operation) => {
   switch (operation) {
     case 'create':
       const isMaster = (parentID === id);
+      console.log(parent, user, isMaster)
+      console.log(Object.keys(parent).length, isMaster, Object.keys(user).length)
+      // if(isMaster) break
 
-      if(isMaster) break
-      if (Object.keys(parent).length === 0 && !isMaster)
-        throw new CustomError(400, `parentID doesn't exists`)
+      if(parentID !== id)
+        throw new CustomError(400, "parentId and id don't match")
+        
+      if (Object.keys(parent).length !== 0)
+        throw new CustomError(400, `parentID already exists`)
 
-      if (Object.keys(user).length !== 0 && !isMaster)
+      if (Object.keys(user).length !== 0)
         throw new CustomError(400, 'userID already exists')
+
       break
     // const isMaster = (await UserRepository.isDatabasesEmpty() && parentID === id);
 
