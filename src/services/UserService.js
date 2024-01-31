@@ -57,6 +57,18 @@ class UserService {
 
     return user
   }
+
+  static async getUsers(managerID){
+    const users = await UserRepository.getUsers(managerID)
+
+    // if (!user || Object.keys(user).length === 0)
+    //   throw new CustomError(404, 'userId not found')
+
+    // user['parent'] = await UserRepository.getParent(id)
+    // user.password = undefined
+
+    return users
+  }
 }
 
 const rules = async (id, parentID, operation) => {

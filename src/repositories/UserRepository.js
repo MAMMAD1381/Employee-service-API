@@ -29,6 +29,17 @@ class UserRepository {
         return parent
     }
 
+    static async getUsers(managerID){
+        const parents = await RedisModel.getParents(managerID)  
+        const managerUsers = []
+        for(let key in parents){
+
+            if(parents[key] === managerID)
+                managerUsers.push(await RedisModel.getUser(key.split(':')[1]))
+        }    
+        return managerUsers
+    }
+
     static async deleteUser(id){
         return await RedisModel.deleteUser(id)
     }

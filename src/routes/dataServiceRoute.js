@@ -1,4 +1,4 @@
-const { addUser, updateUser, getUser, deleteUser } = require('../controller/controller')
+const { addUser, updateUser, getUser, deleteUser, getUsers } = require('../controller/controller')
 const Router = require('./Router')
 const customErrorHandler = require('../errors/customErrorHandler')
 const schema = require('../schema/schema')
@@ -36,6 +36,9 @@ const dataService = async (req, res) => {
         .route(routingRoutes.delete)
         .delete(paramParser(routingRoutes.delete), paramValidation(schema.param.delete), deleteUser)
 
+    router
+        .route(routingRoutes.getUsers)
+        .get(paramParser(routingRoutes.getUsers), paramValidation(schema.param.getUsers), getUsers)
     router.exec(customErrorHandler)
 }
 
@@ -43,7 +46,8 @@ const routingRoutes = {
     get: '/dataService/:id',
     post: '/dataService',
     put: '/dataService',
-    delete: '/dataService/:id'
+    delete: '/dataService/:id',
+    getUsers: '/dataService/users/:parentID'
 }
 
 

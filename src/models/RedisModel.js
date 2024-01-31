@@ -32,15 +32,24 @@ class RedisModel {
         return await this.#tryCatchWrapper('hgetall', 'redis: retrieving user failed', `user:${id}`)
     }
 
-    static async getUsers() {
+    static async getUsers(parentID) {
+        // await redis.select(1)
+        // const pattern = 'parent:*'
+        // const keys = await this.getKeys(pattern)
+        // const userPromises = keys.map(async(key) => await this.#tryCatchWrapper('get', 'redis: retrieving all users failed', key));
+
+        // const users =  await Promise.all(userPromises);
+        // console.log(users)
+
         await redis.select(0)
-        const pattern = 'user:*';
+        const pattern = 'user:' + parentID;
+        // const pattern = 'user:*';
         const keys = await this.getKeys(pattern)
         const userPromises = keys.map(async (key) => await this.#tryCatchWrapper('hgetall', 'redis: retrieving all users failed', key));
         return await Promise.all(userPromises);
     }
 
-    static async deleteUser(id){
+    static async deleteUser(id) {
         await redis.select(0)
         return await this.#tryCatchWrapper('del', 'deleting user failed', `user:${id}`)
     }
@@ -66,18 +75,24 @@ class RedisModel {
         await redis.select(1)
         const pattern = 'parent:*';
         const keys = await this.getKeys(pattern)
-        const userPromises = keys.map(async(key) => await this.#tryCatchWrapper('get', 'redis: retrieving all users failed', key));
-        return await Promise.all(userPromises);
+        const userPromises = keys.map(async (key) => await this.#tryCatchWrapper('get', 'redis: retrieving all users failed', key));
+        const parentsValue = await Promise.all(userPromises);
+
+        const combinedObject = keys.reduce((acc, key, index) => {
+            acc[key] = parentsValue[index];
+            return acc;
+        }, {});
+        return combinedObject
     }
 
-    static async deleteParent(id){
+    static async deleteParent(id) {
         await redis.select(1)
         return await this.#tryCatchWrapper('del', 'deleting user failed', `parent:${id}`)
     }
 
     static async isDatabaseEmpty(index) {
         await redis.select(index)
-        return (await this.#tryCatchWrapper('dbsize', 'redis: checking if database is empty failed') === 0 )
+        return (await this.#tryCatchWrapper('dbsize', 'redis: checking if database is empty failed') === 0)
     }
 
     static async getKeys(pattern) {

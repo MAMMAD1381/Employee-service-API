@@ -58,4 +58,19 @@ const deleteUser = async (request, response) => {
         await customErrorHandler(error, response)
     }
 }
-module.exports = { addUser, updateUser, getUser, deleteUser }
+
+const getUsers = async (request, response) => {
+    try {
+        const users = await UserService.getUsers(request.params.parentID)
+        // const test = users.reduce((acc, obj) => {
+        //     acc[obj.id] = obj;
+        //     return acc;
+        //   }, {});
+        //   console.log(test)
+        commonResponse(response, { count: users.length, users }, 200)
+    }
+    catch (error) {
+        await customErrorHandler(error, response)
+    }
+}
+module.exports = { addUser, updateUser, getUser, deleteUser ,getUsers }
