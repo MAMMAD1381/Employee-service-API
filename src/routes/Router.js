@@ -23,31 +23,31 @@ class Router {
 
   get() {
     const currentPath = this.path
-    this.handlers['GET'] = {args: arguments, path: currentPath}
+    this.handlers['GET'] ? this.handlers['GET'].push({args: arguments, path: currentPath}) : this.handlers['GET'] = [{args: arguments, path: currentPath}]
     return this
   }
 
   post() {
     const currentPath = this.path
-    this.handlers['POST'] = {args: arguments, path: currentPath}
+    this.handlers['POST'] ? this.handlers['POST'].push({args: arguments, path: currentPath}) : this.handlers['POST'] = [{args: arguments, path: currentPath}]
     return this
   }
 
   put() {
     const currentPath = this.path
-    this.handlers['PUT'] = {args: arguments, path: currentPath}
+    this.handlers['PUT'] ? this.handlers['PUT'].push({args: arguments, path: currentPath}) : this.handlers['PUT'] = [{args: arguments, path: currentPath}]
     return this
   }
 
   delete() {
     const currentPath = this.path
-    this.handlers['DELETE'] = {args: arguments, path: currentPath}
+    this.handlers['DELETE'] ? this.handlers['DELETE'].push({args: arguments, path: currentPath}) : this.handlers['DELETE'] = [{args: arguments, path: currentPath}]
     return this
   }
 
   update() {
     const currentPath = this.path
-    this.handlers['UPDATE'] = {args: arguments, path: currentPath}
+    this.handlers['UPDATE'] ? this.handlers['UPDATE'].push({args: arguments, path: currentPath}) : this.handlers['UPDATE'] = [{args: arguments, path: currentPath}]
     return this
   }
 
@@ -58,8 +58,11 @@ class Router {
     try{
       const executionBuffer = []
       for(let method in this.handlers){
-        this.#setRegex(this.handlers[method].path)
-        executionBuffer.push(this.#execMethod(method, this.handlers[method].args))
+        for(let operation of this.handlers[method]){
+          this.#setRegex(operation.path)
+          executionBuffer.push(this.#execMethod(method, operation.args))
+          console.log(operation)
+        }
       }
       await Promise.all(executionBuffer)
     }
