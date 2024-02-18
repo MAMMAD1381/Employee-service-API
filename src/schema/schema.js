@@ -9,7 +9,8 @@ const schema = {
         put: require('./ParamSchemas/putRouteParamSchema'),
         get: require('./ParamSchemas/getRouteParamSchema'),
         delete: require('./ParamSchemas/deleteRouteParamSchema'),
-        getUsers: require('./ParamSchemas/getUsersRouteParamSchema')
+        getUsers: require('./ParamSchemas/getUsersRouteParamSchema'),
+        getUserByUsername: require('./ParamSchemas/getUserByUsernameParamSchema')
     }
 }
 

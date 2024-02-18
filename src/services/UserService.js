@@ -61,13 +61,19 @@ class UserService {
   static async getUsers(managerID){
     const users = await UserRepository.getUsers(managerID)
 
-    // if (!user || Object.keys(user).length === 0)
-    //   throw new CustomError(404, 'userId not found')
-
-    // user['parent'] = await UserRepository.getParent(id)
-    // user.password = undefined
-
     return users
+  }
+
+  static async getUserByUsername(username){
+    const user = await UserRepository.getUserByUsername(username)
+
+    if (!user || Object.keys(user).length === 0)
+      throw new CustomError(404, 'userId not found')
+
+    user['parent'] = await UserRepository.getParent(user.nationalID)
+    user.password = undefined
+
+    return user
   }
 }
 
@@ -78,7 +84,6 @@ const rules = async (id, parentID, operation) => {
   const userExists = Object.keys(user).length !== 0
   const parentExists = Object.keys(parent).length !== 0
 
-  console.log(userExists, parentExists)
   switch (operation) {
     case 'create':
       const isManager = parentID === id && !parentExists
@@ -92,10 +97,10 @@ const rules = async (id, parentID, operation) => {
       break
 
     case 'update':
-      if (Object.keys(user).length === 0)
+      if (!userExists)
         throw new CustomError(404, 'userID not found')
 
-      if (Object.keys(parent).length === 0)
+      if (!parentExists)
         throw new CustomError(404, `newParentID not found`)
       break
 

@@ -15,35 +15,33 @@ class RedisModel {
      */
     static async addUser(id, data) {
         await redis.select(0)
-        await this.#tryCatchWrapper('hmset', 'redis: inserting new user failed', `user:${id}`, data)
+        await this.#tryCatchWrapper('hmset', 'redis: inserting new user failed', `user:${id}:${data.username}`, data)
         return data
     }
 
     static async updateUser(id, data) {
         await redis.select(0)
+        const Key = `user:${id}:*`
         for (const [key, value] of Object.entries(data)) {
-            await this.#tryCatchWrapper('hset', 'redis: updating user failed', `user:${id}`, key, value)
+            await this.#tryCatchWrapper('hset', 'redis: updating user failed', (await redis.keys(Key))[0], key, value)
         }
         return await this.#tryCatchWrapper('hgetall', 'redis: returning updated user failed', `user:${id}`)
     }
 
     static async getUser(id) {
         await redis.select(0)
-        return await this.#tryCatchWrapper('hgetall', 'redis: retrieving user failed', `user:${id}`)
+        const key = `user:${id}:*`
+        return await this.#tryCatchWrapper('hgetall', 'redis: retrieving user failed', (await redis.keys(key))[0])
+    }
+
+    static async getUserByUsername(username){
+        await redis.select(0)
+        return await this.#tryCatchWrapper('hgetall', 'redis: retrieving user failed', (await redis.keys(`user:*:${username}`))[0])
     }
 
     static async getUsers(parentID) {
-        // await redis.select(1)
-        // const pattern = 'parent:*'
-        // const keys = await this.getKeys(pattern)
-        // const userPromises = keys.map(async(key) => await this.#tryCatchWrapper('get', 'redis: retrieving all users failed', key));
-
-        // const users =  await Promise.all(userPromises);
-        // console.log(users)
-
         await redis.select(0)
         const pattern = 'user:' + parentID;
-        // const pattern = 'user:*';
         const keys = await this.getKeys(pattern)
         const userPromises = keys.map(async (key) => await this.#tryCatchWrapper('hgetall', 'redis: retrieving all users failed', key));
         return await Promise.all(userPromises);

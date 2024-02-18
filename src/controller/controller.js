@@ -41,7 +41,11 @@ const updateUser = async (request, response) => {
  */
 const getUser = async (request, response) => {
     try {
-        const user = await UserService.get(request.params.id)
+        let user
+        if (request.params.id)
+            user = await UserService.get(request.params.id)
+        else if (request.params.username)
+            user = await UserService.getUserByUsername(request.params.username)
         commonResponse(response, { user }, 200)
     }
     catch (error) {
@@ -62,15 +66,20 @@ const deleteUser = async (request, response) => {
 const getUsers = async (request, response) => {
     try {
         const users = await UserService.getUsers(request.params.parentID)
-        // const test = users.reduce((acc, obj) => {
-        //     acc[obj.id] = obj;
-        //     return acc;
-        //   }, {});
-        //   console.log(test)
         commonResponse(response, { count: users.length, users }, 200)
     }
     catch (error) {
         await customErrorHandler(error, response)
     }
 }
-module.exports = { addUser, updateUser, getUser, deleteUser ,getUsers }
+
+const getUserByUsername = async (request, response) => {
+    try {
+        const users = await UserService.getUserByUsername(request.params.username)
+        commonResponse(response, { count: users.length, users }, 200)
+    }
+    catch (error) {
+        await customErrorHandler(error, response)
+    }
+}
+module.exports = { addUser, updateUser, getUser, deleteUser, getUsers, getUserByUsername }

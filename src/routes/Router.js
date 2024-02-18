@@ -61,7 +61,6 @@ class Router {
         for(let operation of this.handlers[method]){
           this.#setRegex(operation.path)
           executionBuffer.push(this.#execMethod(method, operation.args))
-          console.log(operation)
         }
       }
       await Promise.all(executionBuffer)

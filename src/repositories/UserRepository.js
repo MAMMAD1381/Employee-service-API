@@ -40,6 +40,10 @@ class UserRepository {
         return managerUsers
     }
 
+    static async getUserByUsername(username){
+        return await RedisModel.getUserByUsername(username)
+    }
+
     static async deleteUser(id){
         return await RedisModel.deleteUser(id)
     }
