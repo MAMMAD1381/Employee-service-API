@@ -41,11 +41,7 @@ const updateUser = async (request, response) => {
  */
 const getUser = async (request, response) => {
     try {
-        let user
-        if (request.params.id)
-            user = await UserService.get(request.params.id)
-        else if (request.params.username)
-            user = await UserService.getUserByUsername(request.params.username)
+        const user = await UserService.get(request.params.id)
         commonResponse(response, { user }, 200)
     }
     catch (error) {
