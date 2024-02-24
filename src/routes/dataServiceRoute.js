@@ -42,7 +42,7 @@ const dataService = async (req, res) => {
 
     router
         .route(routingRoutes.getByUsername)
-        .get(paramParser(routingRoutes.getByUsername), paramValidation(schema.param.getUserByUsername), getUser)
+        .get(paramParser(routingRoutes.getByUsername), paramValidation(schema.param.getUserByUsername), getUserByUsername)
     router.exec(customErrorHandler)
 }
 

@@ -71,8 +71,8 @@ const getUsers = async (request, response) => {
 
 const getUserByUsername = async (request, response) => {
     try {
-        const users = await UserService.getUserByUsername(request.params.username)
-        commonResponse(response, { count: users.length, users }, 200)
+        const user = await UserService.getUserByUsername(request.params.username)
+        commonResponse(response, { user }, 200)
     }
     catch (error) {
         await customErrorHandler(error, response)
