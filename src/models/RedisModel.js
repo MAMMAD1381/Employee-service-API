@@ -38,7 +38,10 @@ class RedisModel {
 
     static async getUserByUsername(username){
         await redis.select(0)
-        return await this.#tryCatchWrapper('hgetall', 'redis: retrieving user failed', (await redis.keys(`user:*:${username}`))[0])
+        const foundUsername = (await redis.keys(`user:*:${username}`))[0]
+        if(foundUsername?.split(':')[2] !== username)
+            return
+        return await this.#tryCatchWrapper('hgetall', 'redis: retrieving user failed', foundUsername)
     }
 
     static async getUsers(parentID) {
