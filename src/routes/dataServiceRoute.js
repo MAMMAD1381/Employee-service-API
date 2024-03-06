@@ -1,46 +1,59 @@
-const {addUser, updateUser, getUser} = require('../controller/controller')
-const { reset } = require('../helper/isResponseFinished')
-const { errResponse } = require('../utils/utils')
+const { addUser, updateUser, getUser, deleteUser, getUsers, getUserByUsername } = require('../controller/controller')
 const Router = require('./Router')
-const test = async (req, res)=>{
-    console.log('test 1')
-    res.end('success')
-    reset()
-}
-const test2 = async (req, res) => {
-    res.end('test 2')
-    reset()
-}
-const dataService = async (req, res) => {
-    let router = new Router()
-    router.routing(req, res)
-    router.route(/\/dataService\/([0-9]+)/).get(getUser)
-    router.route('/space').get(test2)
-    router.next()
-    // if(req.url.match(/\/dataService\/([0-9]+)/)){
+const customErrorHandler = require('../errors/customErrorHandler')
+const schema = require('../schema/schema')
 
-    //     if(req.method === 'GET'){
-    //         await getUser(req, res)
-    //     }
-    //     else if(req.method === 'PUT'){
-    //         await updateUser(req, res)
-    //     }
-    //     else{
-    //         errResponse(req, res, 'Route not found', 400)
-    //     }
-    // }
-    // else if(req.url === '/dataService'){
-    //     if(req.method === 'POST'){
-    //        await addUser(req, res)
-    //     }
-    //     else{
-    //         errResponse(req, res, 'Route not found', 400)
-    //     }
-    // }
-    // // If no route present
-    // else {
-    //     errResponse(req, res, 'Route not found', 400)
-    // }
+// middlewares
+const paramParser = require('../middleware/Parsers/paramParser')
+const paramValidation = require('../middleware/Validations/paramValidation')
+const bodyValidation = require('../middleware/Validations/bodyValidation')
+const bodyParser = require('../middleware/Parsers/bodyParser')
+
+/**
+ * route related to dataService
+ * @param {Request} req 
+ * @param {Response} res 
+ */
+const dataService = async (req, res) => {
+    let router = new Router(req, res)
+
+    // get
+    router
+        .route(routingRoutes.get)
+        .get(paramParser(routingRoutes.get), paramValidation(schema.param.get), getUser)
+
+    // post
+    router
+        .route(routingRoutes.post)
+        .post(bodyParser, bodyValidation(schema.body.post), addUser)
+
+    // put
+    router
+        .route(routingRoutes.put)
+        .put(bodyParser, bodyValidation(schema.body.put), updateUser)
+
+    router
+        .route(routingRoutes.delete)
+        .delete(paramParser(routingRoutes.delete), paramValidation(schema.param.delete), deleteUser)
+
+    router
+        .route(routingRoutes.getUsers)
+        .get(paramParser(routingRoutes.getUsers), paramValidation(schema.param.getUsers), getUsers)
+
+    router
+        .route(routingRoutes.getByUsername)
+        .get(paramParser(routingRoutes.getByUsername), paramValidation(schema.param.getUserByUsername), getUserByUsername)
+    router.exec(customErrorHandler)
 }
+
+const routingRoutes = {
+    get: '/dataService/:id',
+    post: '/dataService',
+    put: '/dataService',
+    delete: '/dataService/:id',
+    getUsers: '/dataService/users/:parentID',
+    getByUsername:'/dataService/user/:username'
+}
+
 
 module.exports = dataService

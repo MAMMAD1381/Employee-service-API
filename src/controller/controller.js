@@ -1,84 +1,81 @@
-const {User} = require('../model/User')
-const {getReqData} = require('../utils/utils')
+const customErrorHandler = require('../errors/customErrorHandler')
+const UserService = require('../services/UserService')
+const commonResponse = require('../utils/commonResponse')
 
 
-const addUser = async (req, res)=>{
-    res.setHeader('Content-Type', 'application/json')
-    const data = JSON.parse(await getReqData(req))
-    const user = await User.create(data)
-    let response
-    console.log(user)
-    if(user.user === null || user.error !== ''){
-        res.statusCode = 403
-        response = {
-            success: false,
-            message: user.error
-        }
+/**
+ * controller for adding new users
+ * @param {Request} request
+ * @param {Response} response 
+ */
+const addUser = async (request, response) => {
+    try {
+        await UserService.create(request.body)
+        commonResponse(response, { message: 'user saved' }, 201)
     }
-    else{
-        res.statusCode = 201
-        response = {
-            success: true,
-            user: user.user
-        }
+    catch (error) {
+        await customErrorHandler(error, response)
     }
-
-    res.write(JSON.stringify(response));
-    res.end();
 }
 
-const updateUser = async (req, res)=>{
-    res.setHeader('Content-Type', 'application/json')
-    const data = JSON.parse(await getReqData(req))
-    const id = req.url.split("/")[2];
-    let user = await User.update(id, data)
-    let response
-    if(user.user === null || user.error !== ''){
-        res.statusCode = 404
-        response = {
-            success: false,
-            message: user.error
-        }
+/**
+ * controller for updating users
+ * @param {Request} request 
+ * @param {Response} response 
+ */
+const updateUser = async (request, response) => {
+    try {
+        await UserService.update(request.body)
+        commonResponse(response, { message: 'user updated' }, 200)
     }
-    else{
-        // user = User.updateUser(id, data)
-        res.statusCode = 200
-        response = {
-            success: true,
-            user: user.user
-        }
+    catch (error) {
+        await customErrorHandler(error, response)
     }
 
-    res.write(JSON.stringify(response));
-    
-    res.end();
 }
 
-const getUser = async (req, res)=>{
-    res.setHeader('Content-Type', 'application/json')
-    const id = req.url.split("/")[2];
-    console.log(id)                  
-    const user = await User.get(id)
-    console.log(id)                  
-
-    let response
-    if(user.user === null || user.error !== ''){
-        res.statusCode = 404
-        response = {
-            success: false,
-            message: user.error
-        }
+/**
+ * returns the user associated to given id
+ * @param {Request} request 
+ * @param {Response} response 
+ */
+const getUser = async (request, response) => {
+    try {
+        const user = await UserService.get(request.params.id)
+        commonResponse(response, { user }, 200)
     }
-    else{
-        res.statusCode = 200
-        response = {
-            success: true,
-            user: user.user
-        }
+    catch (error) {
+        await customErrorHandler(error, response)
     }
-    res.write(JSON.stringify(response));
-    
-    res.end();
 }
 
-module.exports = {addUser, updateUser, getUser}
+const deleteUser = async (request, response) => {
+    try {
+        await UserService.delete(request.params.id)
+        commonResponse(response, { message: 'user deleted successfully' }, 200)
+    }
+    catch (error) {
+        await customErrorHandler(error, response)
+    }
+}
+
+const getUsers = async (request, response) => {
+    try {
+        const users = await UserService.getUsers(request.params.parentID)
+        commonResponse(response, { count: users.length, users }, 200)
+    }
+    catch (error) {
+        await customErrorHandler(error, response)
+    }
+}
+
+const getUserByUsername = async (request, response) => {
+    try {
+        const user = await UserService.getUserByUsername(request.params.username)
+        commonResponse(response, { user }, 200)
+    }
+    catch (error) {
+        await customErrorHandler(error, response)
+    }
+}
+module.exports = { addUser, updateUser, getUser, deleteUser, getUsers, getUserByUsername }
